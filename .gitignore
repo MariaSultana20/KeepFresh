@@ -1,0 +1,26 @@
+# macOS
+.DS_Store
+
+# Xcode
+build/
+DerivedData/
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Xcode per-user state — machine-specific, never share across a team
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# CocoaPods (uncomment if this project adopts Pods later)
+# Pods/
+
+# Firebase config — added when Firebase is actually wired up (build plan step 10);
+# never commit real API keys/config to a public or shared repo
+GoogleService-Info.plist
