@@ -15,7 +15,7 @@
 		C5A7F546D8694E3DBEE9F2A4 /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42CE50140DF448E1A01C9C4A /* AuthViewModel.swift */; };
 		C33C56762CF04F7CA1DFC927 /* HomeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13102C6D22CB4B298989386C /* HomeCoordinator.swift */; };
 		2C6DEFA157684B409CE60369 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090EE6DF333E4426844252BA /* HomeViewController.swift */; };
-		7F24488430AC4C19AF5397EB /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94D5C9186A26450CB2C8A812 /* AuthService.swift */; };
+		7F24488430AC4C19AF5397EB /* AuthServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94D5C9186A26450CB2C8A812 /* AuthServiceProtocol.swift */; };
 		299AADF46E4541B9B4D7D5F8 /* MockAuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F5890015404E0BAEF47DB3 /* MockAuthService.swift */; };
 		67775B5067F141E6B1D820E5 /* PrimaryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4A6769939244CB28C22ECC4 /* PrimaryButton.swift */; };
 		57081D366AC14A2E9E6ABF6A /* SocialSignInButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC280B0FB82546558307D21F /* SocialSignInButton.swift */; };
@@ -33,7 +33,7 @@
 		42CE50140DF448E1A01C9C4A /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
 		13102C6D22CB4B298989386C /* HomeCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeCoordinator.swift; sourceTree = "<group>"; };
 		090EE6DF333E4426844252BA /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
-		94D5C9186A26450CB2C8A812 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
+		94D5C9186A26450CB2C8A812 /* AuthServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthServiceProtocol.swift; sourceTree = "<group>"; };
 		C5F5890015404E0BAEF47DB3 /* MockAuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAuthService.swift; sourceTree = "<group>"; };
 		A4A6769939244CB28C22ECC4 /* PrimaryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryButton.swift; sourceTree = "<group>"; };
 		FC280B0FB82546558307D21F /* SocialSignInButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialSignInButton.swift; sourceTree = "<group>"; };
@@ -67,7 +67,7 @@
 				090EE6DF333E4426844252BA /* HomeViewController.swift */,
 			); path = Home; sourceTree = "<group>"; };
 		52A98B756CC84AC8A29AADA0 /* Services */ = {isa = PBXGroup; children = (
-				94D5C9186A26450CB2C8A812 /* AuthService.swift */,
+				94D5C9186A26450CB2C8A812 /* AuthServiceProtocol.swift */,
 				C5F5890015404E0BAEF47DB3 /* MockAuthService.swift */,
 			); path = Services; sourceTree = "<group>"; };
 		2DA9A77725CD4B1C96949D2E /* Shared */ = {isa = PBXGroup; children = (
@@ -132,7 +132,7 @@
 				C5A7F546D8694E3DBEE9F2A4 /* AuthViewModel.swift in Sources */,
 				C33C56762CF04F7CA1DFC927 /* HomeCoordinator.swift in Sources */,
 				2C6DEFA157684B409CE60369 /* HomeViewController.swift in Sources */,
-				7F24488430AC4C19AF5397EB /* AuthService.swift in Sources */,
+				7F24488430AC4C19AF5397EB /* AuthServiceProtocol.swift in Sources */,
 				299AADF46E4541B9B4D7D5F8 /* MockAuthService.swift in Sources */,
 				67775B5067F141E6B1D820E5 /* PrimaryButton.swift in Sources */,
 				57081D366AC14A2E9E6ABF6A /* SocialSignInButton.swift in Sources */,
