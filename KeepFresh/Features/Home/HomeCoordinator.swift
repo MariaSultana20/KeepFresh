@@ -24,6 +24,12 @@ final class HomeCoordinator {
         )
         let homeViewController = HomeViewController(user: user, itemRepository: itemRepository)
         homeViewController.onAddItemTapped = { [weak self] in self?.onAddItemTapped?() }
+        homeViewController.onItemSelected = { [weak self] item in self?.showItemDetails(for: item) }
         navigationController.setViewControllers([homeViewController], animated: false)
+    }
+
+    private func showItemDetails(for item: Item) {
+        let detailsViewController = ItemDetailsViewController(item: item, itemRepository: itemRepository)
+        navigationController.pushViewController(detailsViewController, animated: true)
     }
 }

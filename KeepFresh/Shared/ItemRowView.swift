@@ -6,10 +6,23 @@ import UIKit
 /// can't drift apart on how a row looks. Matches the `Shared/ItemCell` slot
 /// named in the original project structure notes.
 ///
+/// A `UIControl`, not a plain `UIView` with a bolted-on gesture recognizer
+/// — the chevron this row already draws promises drill-down, so the row
+/// itself should be a real tappable control: `.touchUpInside` gives every
+/// call site the standard target-action pattern already used elsewhere in
+/// this codebase, plus correct press-highlight and VoiceOver button
+/// semantics for free, rather than each screen wiring its own
+/// `UITapGestureRecognizer` and getting those for free nowhere.
+///
 /// No thumbnail yet — Item Editor doesn't capture a photo in this pass (see
 /// the accompanying review's "not yet built" list), so the leading image
 /// well simply isn't shown rather than rendering an empty placeholder box.
-final class ItemRowView: UIView {
+final class ItemRowView: UIControl {
+
+    /// Exposed so a `.touchUpInside` target can read back which item this
+    /// row represents (`sender.item`) rather than every call site having to
+    /// keep its own item-per-row lookup.
+    private(set) var item: Item
 
     private static let quantityFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
@@ -53,15 +66,24 @@ final class ItemRowView: UIView {
     }()
 
     init(item: Item) {
+        self.item = item
         super.init(frame: .zero)
         backgroundColor = AppTheme.Color.cardBackground
         layer.cornerRadius = AppTheme.Metrics.cardCornerRadius
         configure(with: item)
         layout()
+        isAccessibilityElement = true
+        accessibilityTraits = .button
     }
 
     @available(*, unavailable)
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
+    /// Standard "dim while pressed" feedback, matching how `UIButton`
+    /// behaves by default — free once this became a `UIControl`.
+    override var isHighlighted: Bool {
+        didSet { alpha = isHighlighted ? 0.6 : 1.0 }
+    }
 
     private func configure(with item: Item) {
         nameLabel.text = item.name
@@ -74,12 +96,20 @@ final class ItemRowView: UIView {
         statusLabel.text = "  \(status.label)  "
         statusLabel.backgroundColor = status.color
         statusLabel.accessibilityLabel = status.label
+
+        accessibilityLabel = "\(item.name), \(item.category), \(status.label)"
+        accessibilityHint = "Opens item details"
     }
 
     private func layout() {
         let textStack = UIStackView(arrangedSubviews: [nameLabel, detailLabel])
         textStack.axis = .vertical
         textStack.spacing = 2
+        // Arranged subviews of a UIControl don't receive touches by default
+        // interference-free, but they also shouldn't themselves intercept
+        // the row's own touch handling — none of them are interactive, so
+        // this is just defensive rather than fixing an observed bug.
+        textStack.isUserInteractionEnabled = false
 
         statusLabel.translatesAutoresizingMaskIntoConstraints = false
         chevron.translatesAutoresizingMaskIntoConstraints = false
@@ -89,6 +119,7 @@ final class ItemRowView: UIView {
         contentStack.alignment = .center
         contentStack.spacing = 10
         contentStack.translatesAutoresizingMaskIntoConstraints = false
+        contentStack.isUserInteractionEnabled = false
         addSubview(contentStack)
 
         NSLayoutConstraint.activate([

@@ -3,14 +3,15 @@ import UIKit
 /// Items tab, wired to real data: every item from `ItemRepository` in a
 /// scrollable list (already sorted by expiry date ascending), or the empty
 /// state when there are none. Refreshes on `viewWillAppear`, which is what
-/// picks up an item saved from the Add Item modal.
+/// picks up an item saved from the Add Item modal, or an edit/delete made
+/// from Item Details after popping back.
 ///
-/// Search, category grouping, long-press Edit/Delete, and Item Details are
-/// still ahead — see the accompanying review — so rows are display-only for
-/// now (no tap action).
+/// Search, category grouping, and filter/sort are still ahead — see the
+/// accompanying review — but each row now pushes through to Item Details.
 final class ItemsViewController: UIViewController {
 
     var onAddItemTapped: (() -> Void)?
+    var onItemSelected: ((Item) -> Void)?
 
     private let itemRepository: ItemRepository
 
@@ -92,8 +93,14 @@ final class ItemsViewController: UIViewController {
             contentStack.addArrangedSubview(emptyStateView)
         } else {
             for item in items {
-                contentStack.addArrangedSubview(ItemRowView(item: item))
+                let row = ItemRowView(item: item)
+                row.addTarget(self, action: #selector(rowTapped(_:)), for: .touchUpInside)
+                contentStack.addArrangedSubview(row)
             }
         }
+    }
+
+    @objc private func rowTapped(_ sender: ItemRowView) {
+        onItemSelected?(sender.item)
     }
 }

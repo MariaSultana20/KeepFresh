@@ -1,8 +1,8 @@
 import UIKit
 
 /// Owns the Items tab's navigation stack. Wired to real data (list only —
-/// search, category grouping, and Item Details are still ahead, see the
-/// accompanying review) now that `ItemRepository` has a consumer.
+/// search, category grouping, and filter/sort are still ahead, see the
+/// accompanying review) and now pushes Item Details on a row tap.
 @MainActor
 final class ItemsCoordinator {
 
@@ -24,6 +24,12 @@ final class ItemsCoordinator {
         )
         let itemsViewController = ItemsViewController(itemRepository: itemRepository)
         itemsViewController.onAddItemTapped = { [weak self] in self?.onAddItemTapped?() }
+        itemsViewController.onItemSelected = { [weak self] item in self?.showItemDetails(for: item) }
         navigationController.setViewControllers([itemsViewController], animated: false)
+    }
+
+    private func showItemDetails(for item: Item) {
+        let detailsViewController = ItemDetailsViewController(item: item, itemRepository: itemRepository)
+        navigationController.pushViewController(detailsViewController, animated: true)
     }
 }

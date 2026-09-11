@@ -5,15 +5,16 @@ import UIKit
 /// up to the five soonest-expiring active items — per the design spec, both
 /// read from the same `ItemRepository` and refresh every time this screen
 /// becomes visible (`viewWillAppear`), which is what picks up an item saved
-/// from the Add Item modal without any extra plumbing between the two.
+/// from the Add Item modal, or an edit/delete made from Item Details after
+/// popping back, without any extra plumbing between the two.
 ///
-/// Search/filtering, tapping through to Item Details, and the "See all"
-/// action on this section are still ahead (build plan commit 6's remaining
-/// scope) — this screen only displays, it doesn't yet navigate anywhere
-/// from a row tap.
+/// Search/filtering and the "See all" action on this section are still
+/// ahead (build plan commit 6's remaining scope) — but a row tap now
+/// pushes through to Item Details, same as Items' own list.
 final class HomeViewController: UIViewController {
 
     var onAddItemTapped: (() -> Void)?
+    var onItemSelected: ((Item) -> Void)?
 
     private let user: AuthUser
     private let itemRepository: ItemRepository
@@ -129,9 +130,15 @@ final class HomeViewController: UIViewController {
             // itemRepository.fetchAll() is already sorted by expiry date
             // ascending, so the first five are the soonest-expiring.
             for item in items.prefix(5) {
-                expiringSoonStack.addArrangedSubview(ItemRowView(item: item))
+                let row = ItemRowView(item: item)
+                row.addTarget(self, action: #selector(rowTapped(_:)), for: .touchUpInside)
+                expiringSoonStack.addArrangedSubview(row)
             }
         }
+    }
+
+    @objc private func rowTapped(_ sender: ItemRowView) {
+        onItemSelected?(sender.item)
     }
 }
 
