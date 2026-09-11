@@ -4,9 +4,10 @@ import UIKit
 /// header, three zeroed summary cards (All Items / Expired / Expiring Soon),
 /// and an empty-state "Expiring Soon" section.
 ///
-/// This screen intentionally has no data layer yet — it's the shell described
-/// in build plan step 1. Wiring it to a real item count/list is step 3, once
-/// `ItemRepository` exists.
+/// This screen intentionally has no data layer yet, even though
+/// `ItemRepository` exists and Home now lives in the five-tab shell
+/// (build plan commit 5). Wiring the summary cards and this section to
+/// real data is build plan commit 6, done alongside the Items list.
 final class HomeViewController: UIViewController {
 
     private let user: AuthUser
