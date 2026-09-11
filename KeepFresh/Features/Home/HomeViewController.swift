@@ -9,8 +9,6 @@ import UIKit
 /// `ItemRepository` exists.
 final class HomeViewController: UIViewController {
 
-    var onSignOutTapped: (() -> Void)?
-
     private let user: AuthUser
 
     private lazy var greetingLabel: UILabel = {
@@ -49,9 +47,6 @@ final class HomeViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = AppTheme.Color.background
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
-            title: "Sign Out", style: .plain, target: self, action: #selector(signOutTapped)
-        )
         layout()
     }
 
@@ -88,7 +83,7 @@ final class HomeViewController: UIViewController {
 
     private func presentComingSoon() {
         // TODO: route via AppCoordinator to the Item Editor once it exists
-        // (build plan step 4) instead of showing this placeholder alert.
+        // (build plan commit 7) instead of showing this placeholder alert.
         let alert = UIAlertController(
             title: "Coming soon",
             message: "Adding items isn't built yet.",
@@ -96,10 +91,6 @@ final class HomeViewController: UIViewController {
         )
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
-    }
-
-    @objc private func signOutTapped() {
-        onSignOutTapped?()
     }
 }
 

@@ -4,23 +4,41 @@ import UIKit
 /// auth flow or the signed-in app shell — nothing else should touch
 /// `window.rootViewController` directly.
 ///
-/// Scope note: today "signed in" just pushes `HomeViewController` in a plain
-/// `UINavigationController`. The five-tab shell (Home, Items, Add Item,
-/// Notifications, Profile) described in the build plan's step 3 replaces this
-/// with a `UITabBarController` once those features exist — that's an isolated
-/// change to `showSignedInInterface()` below, not a rewrite of the coordinators
-/// built here.
+/// Signed in, the app shell is the five-tab `UITabBarController` from the
+/// design spec: Home, Items, Add Item, Notifications, Profile. Add Item has
+/// no screen of its own — `UITabBarControllerDelegate` intercepts its
+/// selection below and presents `AddItemCoordinator` modally instead,
+/// returning to whichever tab was active before (App Store/Music's "+" tab
+/// pattern), rather than becoming the active tab itself.
 @MainActor
-final class AppCoordinator {
+final class AppCoordinator: NSObject {
 
     private let window: UIWindow
     private let authService: AuthServiceProtocol
+    private let itemRepository: ItemRepository
+
     private var authCoordinator: AuthCoordinator?
     private var homeCoordinator: HomeCoordinator?
+    private var itemsCoordinator: ItemsCoordinator?
+    private var notificationsCoordinator: NotificationsCoordinator?
+    private var profileCoordinator: ProfileCoordinator?
 
-    init(window: UIWindow, authService: AuthServiceProtocol = MockAuthService()) {
+    /// Inert stand-in that occupies the Add Item tab slot. `UITabBarController`
+    /// requires a real view controller per tab, but this one is never shown —
+    /// `tabBarController(_:shouldSelect:)` intercepts the tap and presents
+    /// `AddItemCoordinator` instead, then returns `false` so the tab bar's
+    /// selection never actually moves onto it.
+    private let addItemTabPlaceholder = UIViewController()
+
+    init(
+        window: UIWindow,
+        itemRepository: ItemRepository,
+        authService: AuthServiceProtocol = MockAuthService()
+    ) {
         self.window = window
+        self.itemRepository = itemRepository
         self.authService = authService
+        super.init()
     }
 
     func start() {
@@ -30,6 +48,10 @@ final class AppCoordinator {
 
     private func showAuthFlow() {
         homeCoordinator = nil
+        itemsCoordinator = nil
+        notificationsCoordinator = nil
+        profileCoordinator = nil
+
         let navigationController = UINavigationController()
         navigationController.setNavigationBarHidden(true, animated: false)
 
@@ -48,16 +70,50 @@ final class AppCoordinator {
 
     private func showSignedInInterface(for user: AuthUser) {
         authCoordinator = nil
-        let navigationController = UINavigationController()
 
-        let coordinator = HomeCoordinator(navigationController: navigationController, user: user)
-        coordinator.onSignOut = { [weak self] in
+        let homeNavigationController = UINavigationController()
+        let homeCoordinator = HomeCoordinator(navigationController: homeNavigationController, user: user)
+        homeCoordinator.start()
+        self.homeCoordinator = homeCoordinator
+
+        let itemsNavigationController = UINavigationController()
+        let itemsCoordinator = ItemsCoordinator(navigationController: itemsNavigationController)
+        itemsCoordinator.start()
+        self.itemsCoordinator = itemsCoordinator
+
+        addItemTabPlaceholder.tabBarItem = UITabBarItem(
+            title: "Add Item", image: UIImage(systemName: "plus.circle.fill"), tag: 2
+        )
+
+        let notificationsNavigationController = UINavigationController()
+        let notificationsCoordinator = NotificationsCoordinator(navigationController: notificationsNavigationController)
+        notificationsCoordinator.start()
+        self.notificationsCoordinator = notificationsCoordinator
+
+        let profileNavigationController = UINavigationController()
+        let profileCoordinator = ProfileCoordinator(navigationController: profileNavigationController, user: user)
+        profileCoordinator.onSignOut = { [weak self] in
             self?.signOut()
         }
-        homeCoordinator = coordinator
-        coordinator.start()
+        profileCoordinator.start()
+        self.profileCoordinator = profileCoordinator
 
-        window.setRootViewController(navigationController, animated: true)
+        let tabBarController = UITabBarController()
+        tabBarController.viewControllers = [
+            homeNavigationController,
+            itemsNavigationController,
+            addItemTabPlaceholder,
+            notificationsNavigationController,
+            profileNavigationController,
+        ]
+        tabBarController.tabBar.tintColor = AppTheme.Color.primary
+        tabBarController.delegate = self
+
+        window.setRootViewController(tabBarController, animated: true)
+    }
+
+    private func presentAddItem(from tabBarController: UITabBarController) {
+        AddItemCoordinator(presentingViewController: tabBarController).start()
     }
 
     private func signOut() {
@@ -65,6 +121,14 @@ final class AppCoordinator {
             try? await authService.signOut()
             showAuthFlow()
         }
+    }
+}
+
+extension AppCoordinator: UITabBarControllerDelegate {
+    func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
+        guard viewController === addItemTabPlaceholder else { return true }
+        presentAddItem(from: tabBarController)
+        return false
     }
 }
 

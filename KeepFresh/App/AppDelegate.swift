@@ -10,11 +10,8 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
     /// than one (it doesn't yet — see Info.plist's
     /// UIApplicationSupportsMultipleScenes = false).
     ///
-    /// Not yet consumed by AppCoordinator/SceneDelegate — that wiring lands
-    /// with the five-tab shell, once Items/Home actually have something to
-    /// read from it. Declared here now so the store itself is genuinely
-    /// live and constructible, rather than persistence types that exist in
-    /// Services/ but are never actually instantiated by the running app.
+    /// `SceneDelegate` reads this to build the `SwiftDataItemRepository`
+    /// it hands to `AppCoordinator`.
     lazy var modelContainer: ModelContainer = {
         do {
             return try ModelContainer(for: ItemEntity.self)

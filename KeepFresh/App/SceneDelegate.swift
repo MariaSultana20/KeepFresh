@@ -1,3 +1,4 @@
+import SwiftData
 import UIKit
 
 final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
@@ -11,11 +12,15 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         options connectionOptions: UIScene.ConnectionOptions
     ) {
         guard let windowScene = scene as? UIWindowScene else { return }
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            fatalError("SceneDelegate requires AppDelegate to own the SwiftData ModelContainer")
+        }
 
         let window = UIWindow(windowScene: windowScene)
         self.window = window
 
-        let coordinator = AppCoordinator(window: window)
+        let itemRepository = SwiftDataItemRepository(modelContext: appDelegate.modelContainer.mainContext)
+        let coordinator = AppCoordinator(window: window, itemRepository: itemRepository)
         appCoordinator = coordinator
         coordinator.start()
     }
