@@ -24,6 +24,8 @@
 		7F74D39874764738AF31671F /* DividerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018ED56446C14F9C861CCA16 /* DividerView.swift */; };
 		A6655CBAE33E480AB995040E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EF8C7AE17D4C4B1B8EAFA33B /* Assets.xcassets */; };
 		A7FCA5CBAFE5284215AC7E93 /* EmailValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 455FD6E6C78DC002BA2F61B0 /* EmailValidator.swift */; };
+		126AF1E642C11AE51F385866 /* KeepFreshTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 811571F99695DD56C317A6D8 /* KeepFreshTests.swift */; };
+		7FFB6A291612997BAC1C394C /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE1E3505AB512808CA8F2747 /* XCTest.framework */; };
 		7C6F1004F2244447A022867C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		BB74F726D6064EFBB9878B48 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		EAE8C674597D41918EE1C7C9 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
@@ -45,7 +47,10 @@
 		82141C8D88F54715A24F88E4 /* KeepFresh.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = KeepFresh.entitlements; sourceTree = "<group>"; };
 		EF8C7AE17D4C4B1B8EAFA33B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		455FD6E6C78DC002BA2F61B0 /* EmailValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailValidator.swift; sourceTree = "<group>"; };
+		811571F99695DD56C317A6D8 /* KeepFreshTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeepFreshTests.swift; sourceTree = "<group>"; };
+		DE1E3505AB512808CA8F2747 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		813B9029C86D490486ECAF36 /* KeepFresh.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KeepFresh.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E47E8ACEF1FB8D7B2120FA93 /* KeepFreshTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KeepFreshTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		20EF5AAF9DFC487A81167EAB /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (
 			); runOnlyForDeploymentPostprocessing = 0; };
 		20588C8483C644A788B872F8 /* App */ = {isa = PBXGroup; children = (
@@ -92,11 +97,16 @@
 				DD5A914A7E32453797D4E005 /* Info.plist */,
 				82141C8D88F54715A24F88E4 /* KeepFresh.entitlements */,
 			); path = KeepFresh; sourceTree = "<group>"; };
+		A9D42858850D2B8782247386 /* KeepFreshTests */ = {isa = PBXGroup; children = (
+				811571F99695DD56C317A6D8 /* KeepFreshTests.swift */,
+			); path = KeepFreshTests; sourceTree = "<group>"; };
 		A46BA793651640989AF46800 /* Products */ = {isa = PBXGroup; children = (
 				813B9029C86D490486ECAF36 /* KeepFresh.app */,
+				E47E8ACEF1FB8D7B2120FA93 /* KeepFreshTests.xctest */,
 			); name = Products; sourceTree = "<group>"; };
 		48BC7ADFE6704F0AA62BAC50 = {isa = PBXGroup; children = (
 				3384AEAEF2E04D1DB789747E /* KeepFresh */,
+				A9D42858850D2B8782247386 /* KeepFreshTests */,
 				A46BA793651640989AF46800 /* Products */,
 			); sourceTree = "<group>"; };
 		1EF4EB779ED54547A79C18FC /* KeepFresh */ = {isa = PBXNativeTarget; buildConfigurationList = E86785425B8E4C74AB0792AE /* Build configuration list for PBXNativeTarget "KeepFresh" */; buildPhases = (
@@ -106,6 +116,16 @@
 			); buildRules = (
 			); dependencies = (
 			); name = KeepFresh; productName = KeepFresh; productReference = 813B9029C86D490486ECAF36 /* KeepFresh.app */; productType = "com.apple.product-type.application"; };
+		1AC46C326231B3ED1F97EFC2 /* KeepFreshTests */ = {isa = PBXNativeTarget; buildConfigurationList = 9C38153FFBBD908AAEED51B2 /* Build configuration list for PBXNativeTarget "KeepFreshTests" */; buildPhases = (
+				365529BE13FAA648E99F695B /* Sources */,
+				6189D4874F6CE5CD209BF83C /* Frameworks */,
+				973E50C88DCDFC913F8A549B /* Resources */,
+			); buildRules = (
+			); dependencies = (
+				5319FBB69BEF0E96DAB1F6AA /* PBXTargetDependency */,
+			); name = KeepFreshTests; productName = KeepFreshTests; productReference = E47E8ACEF1FB8D7B2120FA93 /* KeepFreshTests.xctest */; productType = "com.apple.product-type.bundle.unit-test"; };
+		306698D9B2403E47E627EB1A /* PBXContainerItemProxy */ = {isa = PBXContainerItemProxy; containerPortal = DDBAEB9D7A044AA3A1E0D6B5 /* Project object */; proxyType = 1; remoteGlobalIDString = 1EF4EB779ED54547A79C18FC; remoteInfo = KeepFresh; };
+		5319FBB69BEF0E96DAB1F6AA /* PBXTargetDependency */ = {isa = PBXTargetDependency; target = 1EF4EB779ED54547A79C18FC /* KeepFresh */; targetProxy = 306698D9B2403E47E627EB1A /* PBXContainerItemProxy */; };
 		DDBAEB9D7A044AA3A1E0D6B5 /* Project object */ = {isa = PBXProject; attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1520;
@@ -114,12 +134,17 @@
 					1EF4EB779ED54547A79C18FC = {
 						CreatedOnToolsVersion = 15.2;
 					};
+					1AC46C326231B3ED1F97EFC2 = {
+						CreatedOnToolsVersion = 15.2;
+						TestTargetID = 1EF4EB779ED54547A79C18FC;
+					};
 				};
 			}; buildConfigurationList = F8B1617DEBFF44489A074431 /* Build configuration list for PBXProject "KeepFresh" */; compatibilityVersion = "Xcode 14.0"; developmentRegion = en; hasScannedForEncodings = 0; knownRegions = (
 				en,
 				Base,
 			); mainGroup = 48BC7ADFE6704F0AA62BAC50; productRefGroup = A46BA793651640989AF46800 /* Products */; projectDirPath = ""; projectRoot = ""; targets = (
 				1EF4EB779ED54547A79C18FC /* KeepFresh */,
+				1AC46C326231B3ED1F97EFC2 /* KeepFreshTests */,
 			); };
 		07239C44786E45B29DEDD839 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (
 				A6655CBAE33E480AB995040E /* Assets.xcassets in Resources */,
@@ -143,6 +168,14 @@
 				A857883F843B44ECB8F1B2B3 /* PasswordField.swift in Sources */,
 				7F74D39874764738AF31671F /* DividerView.swift in Sources */,
 				A7FCA5CBAFE5284215AC7E93 /* EmailValidator.swift in Sources */,
+			); runOnlyForDeploymentPostprocessing = 0; };
+		365529BE13FAA648E99F695B /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
+				126AF1E642C11AE51F385866 /* KeepFreshTests.swift in Sources */,
+			); runOnlyForDeploymentPostprocessing = 0; };
+		6189D4874F6CE5CD209BF83C /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (
+				7FFB6A291612997BAC1C394C /* XCTest.framework in Frameworks */,
+			); runOnlyForDeploymentPostprocessing = 0; };
+		973E50C88DCDFC913F8A549B /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (
 			); runOnlyForDeploymentPostprocessing = 0; };
 		7CB20C4C45A84821B72EF311 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -301,6 +334,38 @@
 		E86785425B8E4C74AB0792AE /* Build configuration list for PBXNativeTarget "KeepFresh" */ = {isa = XCConfigurationList; buildConfigurations = (
 				939CDE6444CD4EA1913A9477 /* Debug */,
 				D49B80448ED9400C85646DB2 /* Release */,
+			); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		549A8C0967F18B4546F60EBD /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.maria.keepfresh.KeepFreshTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KeepFresh.app/KeepFresh";
+			}; name = Debug; };
+		7EB5434BA2815F64A8C6A0CC /* Release */ = {isa = XCBuildConfiguration; buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.maria.keepfresh.KeepFreshTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KeepFresh.app/KeepFresh";
+			}; name = Release; };
+		9C38153FFBBD908AAEED51B2 /* Build configuration list for PBXNativeTarget "KeepFreshTests" */ = {isa = XCConfigurationList; buildConfigurations = (
+				549A8C0967F18B4546F60EBD /* Debug */,
+				7EB5434BA2815F64A8C6A0CC /* Release */,
 			); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
 	};
 	rootObject = DDBAEB9D7A044AA3A1E0D6B5 /* Project object */;
