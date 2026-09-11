@@ -172,12 +172,10 @@ final class ItemDetailsViewController: UIViewController {
         nameLabel.text = item.name
         categoryLabel.text = item.category
 
-        // A generic, category-driven icon rather than a user photo — the
-        // mockup's own "Add Manually" form never actually collects a photo
-        // either. CategoryIcon (a follow-up commit) replaces this fixed
-        // symbol with a per-category one; this screen just needs the well
-        // to already exist so that follow-up is a one-line swap here.
-        iconImageView.image = UIImage(systemName: "shippingbox.fill")
+        // A generic, category-driven icon rather than a user photo — see
+        // CategoryIcon; same source ItemRowView's leading icon uses, so a
+        // row and its own detail screen never show a different icon.
+        iconImageView.image = UIImage(systemName: CategoryIcon.symbolName(for: item.category))
 
         let status = item.status()
         statusBadge.text = "  \(status.label)  "

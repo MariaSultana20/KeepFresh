@@ -14,15 +14,22 @@ import UIKit
 /// semantics for free, rather than each screen wiring its own
 /// `UITapGestureRecognizer` and getting those for free nowhere.
 ///
-/// No thumbnail yet — Item Editor doesn't capture a photo in this pass (see
-/// the accompanying review's "not yet built" list), so the leading image
-/// well simply isn't shown rather than rendering an empty placeholder box.
+/// Leads with a generic per-category icon (see `CategoryIcon`) rather than
+/// a user photo — Item Editor never captures one, and the mockup's own
+/// Add Manually form doesn't collect one either.
 final class ItemRowView: UIControl {
 
     /// Exposed so a `.touchUpInside` target can read back which item this
     /// row represents (`sender.item`) rather than every call site having to
     /// keep its own item-per-row lookup.
     private(set) var item: Item
+
+    private let categoryIconView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.tintColor = AppTheme.Color.primary
+        imageView.contentMode = .scaleAspectFit
+        return imageView
+    }()
 
     private static let quantityFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
@@ -86,6 +93,7 @@ final class ItemRowView: UIControl {
     }
 
     private func configure(with item: Item) {
+        categoryIconView.image = UIImage(systemName: CategoryIcon.symbolName(for: item.category))
         nameLabel.text = item.name
 
         let quantityText = ItemRowView.quantityFormatter.string(from: NSNumber(value: item.quantity)) ?? "\(item.quantity)"
@@ -114,7 +122,8 @@ final class ItemRowView: UIControl {
         statusLabel.translatesAutoresizingMaskIntoConstraints = false
         chevron.translatesAutoresizingMaskIntoConstraints = false
 
-        let contentStack = UIStackView(arrangedSubviews: [textStack, statusLabel, chevron])
+        categoryIconView.translatesAutoresizingMaskIntoConstraints = false
+        let contentStack = UIStackView(arrangedSubviews: [categoryIconView, textStack, statusLabel, chevron])
         contentStack.axis = .horizontal
         contentStack.alignment = .center
         contentStack.spacing = 10
@@ -131,6 +140,8 @@ final class ItemRowView: UIControl {
             statusLabel.heightAnchor.constraint(equalToConstant: 22),
             chevron.widthAnchor.constraint(equalToConstant: 12),
             chevron.heightAnchor.constraint(equalToConstant: 16),
+            categoryIconView.widthAnchor.constraint(equalToConstant: 28),
+            categoryIconView.heightAnchor.constraint(equalToConstant: 28),
         ])
 
         // Keeps the status chip and chevron from being compressed before
@@ -139,6 +150,7 @@ final class ItemRowView: UIControl {
         textStack.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         statusLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         chevron.setContentCompressionResistancePriority(.required, for: .horizontal)
+        categoryIconView.setContentCompressionResistancePriority(.required, for: .horizontal)
         nameLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
     }
 }
