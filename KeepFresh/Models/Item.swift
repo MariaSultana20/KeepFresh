@@ -67,9 +67,14 @@ struct Item: Identifiable, Equatable, Codable {
         self.updatedAt = updatedAt
     }
 
-    // NOTE: a `status(referenceDate:calendar:timeZone:)` convenience that
-    // wraps `ExpiryStatusCalculator` belongs here, added alongside that
-    // type in the next commit — deliberately left out of this one so the
-    // project stays buildable at every commit rather than referencing a
-    // type that doesn't exist yet.
+    /// Convenience wrapper around `ExpiryStatusCalculator` — the calculator
+    /// itself stays a free function (easier to unit test in isolation);
+    /// this just saves call sites from importing/naming it separately.
+    func status(
+        referenceDate: Date = Date(),
+        calendar: Calendar = .current,
+        timeZone: TimeZone = .current
+    ) -> ExpiryStatus {
+        ExpiryStatusCalculator.status(for: expiryDate, referenceDate: referenceDate, calendar: calendar, timeZone: timeZone)
+    }
 }

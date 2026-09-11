@@ -28,6 +28,8 @@
 		7FFB6A291612997BAC1C394C /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE1E3505AB512808CA8F2747 /* XCTest.framework */; };
 		1671E9A3105CBD31ED668BD7 /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0F73691E7D98BA0494B294 /* Item.swift */; };
 		7DAF573064F94A36F735F341 /* ExpiryStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFDCBEE4705029B9BC4D2364 /* ExpiryStatus.swift */; };
+		E6E97530D844D53B7733D2D5 /* ExpiryStatusCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31AC34F854953ED42E4CFEFD /* ExpiryStatusCalculator.swift */; };
+		E892D68DC1CAB40A8B726F57 /* ExpiryStatusCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7814BEF6A5642090B325B57 /* ExpiryStatusCalculatorTests.swift */; };
 		7C6F1004F2244447A022867C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		BB74F726D6064EFBB9878B48 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		EAE8C674597D41918EE1C7C9 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
@@ -53,6 +55,8 @@
 		DE1E3505AB512808CA8F2747 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		CF0F73691E7D98BA0494B294 /* Item.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Item.swift; sourceTree = "<group>"; };
 		DFDCBEE4705029B9BC4D2364 /* ExpiryStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpiryStatus.swift; sourceTree = "<group>"; };
+		31AC34F854953ED42E4CFEFD /* ExpiryStatusCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpiryStatusCalculator.swift; sourceTree = "<group>"; };
+		D7814BEF6A5642090B325B57 /* ExpiryStatusCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpiryStatusCalculatorTests.swift; sourceTree = "<group>"; };
 		813B9029C86D490486ECAF36 /* KeepFresh.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KeepFresh.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E47E8ACEF1FB8D7B2120FA93 /* KeepFreshTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KeepFreshTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		20EF5AAF9DFC487A81167EAB /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (
@@ -95,6 +99,7 @@
 		06A092A263050F9205095F7B /* Models */ = {isa = PBXGroup; children = (
 				CF0F73691E7D98BA0494B294 /* Item.swift */,
 				DFDCBEE4705029B9BC4D2364 /* ExpiryStatus.swift */,
+				31AC34F854953ED42E4CFEFD /* ExpiryStatusCalculator.swift */,
 			); path = Models; sourceTree = "<group>"; };
 		3384AEAEF2E04D1DB789747E /* KeepFresh */ = {isa = PBXGroup; children = (
 				20588C8483C644A788B872F8 /* App */,
@@ -108,6 +113,7 @@
 			); path = KeepFresh; sourceTree = "<group>"; };
 		A9D42858850D2B8782247386 /* KeepFreshTests */ = {isa = PBXGroup; children = (
 				811571F99695DD56C317A6D8 /* KeepFreshTests.swift */,
+				D7814BEF6A5642090B325B57 /* ExpiryStatusCalculatorTests.swift */,
 			); path = KeepFreshTests; sourceTree = "<group>"; };
 		A46BA793651640989AF46800 /* Products */ = {isa = PBXGroup; children = (
 				813B9029C86D490486ECAF36 /* KeepFresh.app */,
@@ -179,9 +185,11 @@
 				A7FCA5CBAFE5284215AC7E93 /* EmailValidator.swift in Sources */,
 				1671E9A3105CBD31ED668BD7 /* Item.swift in Sources */,
 				7DAF573064F94A36F735F341 /* ExpiryStatus.swift in Sources */,
+				E6E97530D844D53B7733D2D5 /* ExpiryStatusCalculator.swift in Sources */,
 			); runOnlyForDeploymentPostprocessing = 0; };
 		365529BE13FAA648E99F695B /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
 				126AF1E642C11AE51F385866 /* KeepFreshTests.swift in Sources */,
+				E892D68DC1CAB40A8B726F57 /* ExpiryStatusCalculatorTests.swift in Sources */,
 			); runOnlyForDeploymentPostprocessing = 0; };
 		6189D4874F6CE5CD209BF83C /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (
 				7FFB6A291612997BAC1C394C /* XCTest.framework in Frameworks */,
