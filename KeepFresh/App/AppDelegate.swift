@@ -33,7 +33,7 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         // FirebaseAuthService replaces MockAuthService — see the build plan's
         // "wire up authentication" commit. Nothing to configure yet since v1
         // starts local-only (SwiftData) with no Firestore/Storage.
-        true
+        return true
     }
 
     // MARK: UISceneSession Lifecycle
