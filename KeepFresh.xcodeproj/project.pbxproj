@@ -31,6 +31,8 @@
 		E6E97530D844D53B7733D2D5 /* ExpiryStatusCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31AC34F854953ED42E4CFEFD /* ExpiryStatusCalculator.swift */; };
 		E892D68DC1CAB40A8B726F57 /* ExpiryStatusCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7814BEF6A5642090B325B57 /* ExpiryStatusCalculatorTests.swift */; };
 		228DD335CF79686AD03AA0B5 /* ItemRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A814A9869DD3651840C25F4A /* ItemRepository.swift */; };
+		20703D8A05014D8028DCEA0E /* ItemEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92D50EC85B5D48E3AE42BDF9 /* ItemEntity.swift */; };
+		F1050563E13192877C4DB9BE /* SwiftDataItemRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D3556BB6F903DDACA030E73 /* SwiftDataItemRepository.swift */; };
 		7C6F1004F2244447A022867C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		BB74F726D6064EFBB9878B48 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		EAE8C674597D41918EE1C7C9 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
@@ -59,6 +61,8 @@
 		31AC34F854953ED42E4CFEFD /* ExpiryStatusCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpiryStatusCalculator.swift; sourceTree = "<group>"; };
 		D7814BEF6A5642090B325B57 /* ExpiryStatusCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpiryStatusCalculatorTests.swift; sourceTree = "<group>"; };
 		A814A9869DD3651840C25F4A /* ItemRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemRepository.swift; sourceTree = "<group>"; };
+		92D50EC85B5D48E3AE42BDF9 /* ItemEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemEntity.swift; sourceTree = "<group>"; };
+		7D3556BB6F903DDACA030E73 /* SwiftDataItemRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftDataItemRepository.swift; sourceTree = "<group>"; };
 		813B9029C86D490486ECAF36 /* KeepFresh.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KeepFresh.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E47E8ACEF1FB8D7B2120FA93 /* KeepFreshTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KeepFreshTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		20EF5AAF9DFC487A81167EAB /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (
@@ -88,6 +92,8 @@
 				C5F5890015404E0BAEF47DB3 /* MockAuthService.swift */,
 				455FD6E6C78DC002BA2F61B0 /* EmailValidator.swift */,
 				A814A9869DD3651840C25F4A /* ItemRepository.swift */,
+				92D50EC85B5D48E3AE42BDF9 /* ItemEntity.swift */,
+				7D3556BB6F903DDACA030E73 /* SwiftDataItemRepository.swift */,
 			); path = Services; sourceTree = "<group>"; };
 		2DA9A77725CD4B1C96949D2E /* Shared */ = {isa = PBXGroup; children = (
 				A4A6769939244CB28C22ECC4 /* PrimaryButton.swift */,
@@ -190,6 +196,8 @@
 				7DAF573064F94A36F735F341 /* ExpiryStatus.swift in Sources */,
 				E6E97530D844D53B7733D2D5 /* ExpiryStatusCalculator.swift in Sources */,
 				228DD335CF79686AD03AA0B5 /* ItemRepository.swift in Sources */,
+				20703D8A05014D8028DCEA0E /* ItemEntity.swift in Sources */,
+				F1050563E13192877C4DB9BE /* SwiftDataItemRepository.swift in Sources */,
 			); runOnlyForDeploymentPostprocessing = 0; };
 		365529BE13FAA648E99F695B /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
 				126AF1E642C11AE51F385866 /* KeepFreshTests.swift in Sources */,
