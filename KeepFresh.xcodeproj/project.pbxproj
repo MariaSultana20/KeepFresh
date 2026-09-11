@@ -26,6 +26,8 @@
 		A7FCA5CBAFE5284215AC7E93 /* EmailValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 455FD6E6C78DC002BA2F61B0 /* EmailValidator.swift */; };
 		126AF1E642C11AE51F385866 /* KeepFreshTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 811571F99695DD56C317A6D8 /* KeepFreshTests.swift */; };
 		7FFB6A291612997BAC1C394C /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE1E3505AB512808CA8F2747 /* XCTest.framework */; };
+		1671E9A3105CBD31ED668BD7 /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0F73691E7D98BA0494B294 /* Item.swift */; };
+		7DAF573064F94A36F735F341 /* ExpiryStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFDCBEE4705029B9BC4D2364 /* ExpiryStatus.swift */; };
 		7C6F1004F2244447A022867C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		BB74F726D6064EFBB9878B48 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		EAE8C674597D41918EE1C7C9 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
@@ -49,6 +51,8 @@
 		455FD6E6C78DC002BA2F61B0 /* EmailValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailValidator.swift; sourceTree = "<group>"; };
 		811571F99695DD56C317A6D8 /* KeepFreshTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeepFreshTests.swift; sourceTree = "<group>"; };
 		DE1E3505AB512808CA8F2747 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		CF0F73691E7D98BA0494B294 /* Item.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Item.swift; sourceTree = "<group>"; };
+		DFDCBEE4705029B9BC4D2364 /* ExpiryStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpiryStatus.swift; sourceTree = "<group>"; };
 		813B9029C86D490486ECAF36 /* KeepFresh.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KeepFresh.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E47E8ACEF1FB8D7B2120FA93 /* KeepFreshTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KeepFreshTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		20EF5AAF9DFC487A81167EAB /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (
@@ -88,10 +92,15 @@
 		1F24DC2D35884457B3514BA9 /* Resources */ = {isa = PBXGroup; children = (
 				EF8C7AE17D4C4B1B8EAFA33B /* Assets.xcassets */,
 			); path = Resources; sourceTree = "<group>"; };
+		06A092A263050F9205095F7B /* Models */ = {isa = PBXGroup; children = (
+				CF0F73691E7D98BA0494B294 /* Item.swift */,
+				DFDCBEE4705029B9BC4D2364 /* ExpiryStatus.swift */,
+			); path = Models; sourceTree = "<group>"; };
 		3384AEAEF2E04D1DB789747E /* KeepFresh */ = {isa = PBXGroup; children = (
 				20588C8483C644A788B872F8 /* App */,
 				710A088A971A4C969D9A3E37 /* Features */,
 				52A98B756CC84AC8A29AADA0 /* Services */,
+				06A092A263050F9205095F7B /* Models */,
 				2DA9A77725CD4B1C96949D2E /* Shared */,
 				1F24DC2D35884457B3514BA9 /* Resources */,
 				DD5A914A7E32453797D4E005 /* Info.plist */,
@@ -168,6 +177,8 @@
 				A857883F843B44ECB8F1B2B3 /* PasswordField.swift in Sources */,
 				7F74D39874764738AF31671F /* DividerView.swift in Sources */,
 				A7FCA5CBAFE5284215AC7E93 /* EmailValidator.swift in Sources */,
+				1671E9A3105CBD31ED668BD7 /* Item.swift in Sources */,
+				7DAF573064F94A36F735F341 /* ExpiryStatus.swift in Sources */,
 			); runOnlyForDeploymentPostprocessing = 0; };
 		365529BE13FAA648E99F695B /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
 				126AF1E642C11AE51F385866 /* KeepFreshTests.swift in Sources */,
