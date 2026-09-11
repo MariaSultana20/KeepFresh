@@ -39,6 +39,8 @@
 		540227294D566390583EA838 /* ItemsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08E3AE52B0B901D18577CA42 /* ItemsViewController.swift */; };
 		CE578E6A18D7596ABBA9C19E /* AddItemCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A21FFDB28E3226DCAF00A610 /* AddItemCoordinator.swift */; };
 		50D42AA7F4D201ABD3794554 /* AddItemPlaceholderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2838876CB34E520EF003CA14 /* AddItemPlaceholderViewController.swift */; };
+		8EB51D0C154E63DAE424D310 /* NotificationsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03B22289346F0BB1BAA40B7E /* NotificationsCoordinator.swift */; };
+		34F2D15162C282D9A7A64BE7 /* NotificationsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8664D504B02CABA9A367F0C /* NotificationsViewController.swift */; };
 		7C6F1004F2244447A022867C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		BB74F726D6064EFBB9878B48 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		EAE8C674597D41918EE1C7C9 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
@@ -75,6 +77,8 @@
 		08E3AE52B0B901D18577CA42 /* ItemsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemsViewController.swift; sourceTree = "<group>"; };
 		A21FFDB28E3226DCAF00A610 /* AddItemCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddItemCoordinator.swift; sourceTree = "<group>"; };
 		2838876CB34E520EF003CA14 /* AddItemPlaceholderViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddItemPlaceholderViewController.swift; sourceTree = "<group>"; };
+		03B22289346F0BB1BAA40B7E /* NotificationsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsCoordinator.swift; sourceTree = "<group>"; };
+		E8664D504B02CABA9A367F0C /* NotificationsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsViewController.swift; sourceTree = "<group>"; };
 		813B9029C86D490486ECAF36 /* KeepFresh.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KeepFresh.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E47E8ACEF1FB8D7B2120FA93 /* KeepFreshTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KeepFreshTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		20EF5AAF9DFC487A81167EAB /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (
@@ -90,6 +94,7 @@
 				25D4A9315F3042E588362BA7 /* Home */,
 				A5634DF28EFF78FAB52E3895 /* Items */,
 				43B25B1AF83225FDD98217BE /* AddItem */,
+				E9C83DC366CB5C47F77C38C6 /* Notifications */,
 			); path = Features; sourceTree = "<group>"; };
 		CA78A824A8C348AC91072837 /* Auth */ = {isa = PBXGroup; children = (
 				5A18CC21BA1E40F09AD531E0 /* AuthCoordinator.swift */,
@@ -97,6 +102,10 @@
 				8DCC0D6EBA0E48EC828930A9 /* CreateAccountViewController.swift */,
 				42CE50140DF448E1A01C9C4A /* AuthViewModel.swift */,
 			); path = Auth; sourceTree = "<group>"; };
+		E9C83DC366CB5C47F77C38C6 /* Notifications */ = {isa = PBXGroup; children = (
+				03B22289346F0BB1BAA40B7E /* NotificationsCoordinator.swift */,
+				E8664D504B02CABA9A367F0C /* NotificationsViewController.swift */,
+			); path = Notifications; sourceTree = "<group>"; };
 		43B25B1AF83225FDD98217BE /* AddItem */ = {isa = PBXGroup; children = (
 				A21FFDB28E3226DCAF00A610 /* AddItemCoordinator.swift */,
 				2838876CB34E520EF003CA14 /* AddItemPlaceholderViewController.swift */,
@@ -227,6 +236,8 @@
 				540227294D566390583EA838 /* ItemsViewController.swift in Sources */,
 				CE578E6A18D7596ABBA9C19E /* AddItemCoordinator.swift in Sources */,
 				50D42AA7F4D201ABD3794554 /* AddItemPlaceholderViewController.swift in Sources */,
+				8EB51D0C154E63DAE424D310 /* NotificationsCoordinator.swift in Sources */,
+				34F2D15162C282D9A7A64BE7 /* NotificationsViewController.swift in Sources */,
 			); runOnlyForDeploymentPostprocessing = 0; };
 		365529BE13FAA648E99F695B /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
 				126AF1E642C11AE51F385866 /* KeepFreshTests.swift in Sources */,
