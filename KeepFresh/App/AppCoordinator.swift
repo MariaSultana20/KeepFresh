@@ -9,7 +9,10 @@ import UIKit
 /// no screen of its own — `UITabBarControllerDelegate` intercepts its
 /// selection below and presents `AddItemCoordinator` modally instead,
 /// returning to whichever tab was active before (App Store/Music's "+" tab
-/// pattern), rather than becoming the active tab itself.
+/// pattern), rather than becoming the active tab itself. Home and Items also
+/// each have their own "Add an item" empty-state button, which routes here
+/// through the same `presentAddItem()` rather than duplicating the modal
+/// presentation logic at each call site.
 @MainActor
 final class AppCoordinator: NSObject {
 
@@ -22,6 +25,11 @@ final class AppCoordinator: NSObject {
     private var itemsCoordinator: ItemsCoordinator?
     private var notificationsCoordinator: NotificationsCoordinator?
     private var profileCoordinator: ProfileCoordinator?
+
+    /// Held so `presentAddItem()` can present over it from any call site
+    /// (the tab intercept below, or Home's/Items' "Add an item" buttons),
+    /// not just from the `UITabBarControllerDelegate` callback.
+    private weak var tabBarController: UITabBarController?
 
     /// Inert stand-in that occupies the Add Item tab slot. `UITabBarController`
     /// requires a real view controller per tab, but this one is never shown —
@@ -51,6 +59,7 @@ final class AppCoordinator: NSObject {
         itemsCoordinator = nil
         notificationsCoordinator = nil
         profileCoordinator = nil
+        tabBarController = nil
 
         let navigationController = UINavigationController()
         navigationController.setNavigationBarHidden(true, animated: false)
@@ -72,12 +81,16 @@ final class AppCoordinator: NSObject {
         authCoordinator = nil
 
         let homeNavigationController = UINavigationController()
-        let homeCoordinator = HomeCoordinator(navigationController: homeNavigationController, user: user)
+        let homeCoordinator = HomeCoordinator(
+            navigationController: homeNavigationController, user: user, itemRepository: itemRepository
+        )
+        homeCoordinator.onAddItemTapped = { [weak self] in self?.presentAddItem() }
         homeCoordinator.start()
         self.homeCoordinator = homeCoordinator
 
         let itemsNavigationController = UINavigationController()
-        let itemsCoordinator = ItemsCoordinator(navigationController: itemsNavigationController)
+        let itemsCoordinator = ItemsCoordinator(navigationController: itemsNavigationController, itemRepository: itemRepository)
+        itemsCoordinator.onAddItemTapped = { [weak self] in self?.presentAddItem() }
         itemsCoordinator.start()
         self.itemsCoordinator = itemsCoordinator
 
@@ -108,12 +121,18 @@ final class AppCoordinator: NSObject {
         ]
         tabBarController.tabBar.tintColor = AppTheme.Color.primary
         tabBarController.delegate = self
+        self.tabBarController = tabBarController
 
         window.setRootViewController(tabBarController, animated: true)
     }
 
-    private func presentAddItem(from tabBarController: UITabBarController) {
-        AddItemCoordinator(presentingViewController: tabBarController).start()
+    /// Presents the Add Item modal over the current tab bar shell. Shared by
+    /// the Add Item tab intercept and by Home's/Items' own "Add an item"
+    /// buttons so there's exactly one place that knows how that modal gets
+    /// presented.
+    private func presentAddItem() {
+        guard let tabBarController else { return }
+        AddItemCoordinator(presentingViewController: tabBarController, itemRepository: itemRepository).start()
     }
 
     private func signOut() {
@@ -127,7 +146,7 @@ final class AppCoordinator: NSObject {
 extension AppCoordinator: UITabBarControllerDelegate {
     func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
         guard viewController === addItemTabPlaceholder else { return true }
-        presentAddItem(from: tabBarController)
+        presentAddItem()
         return false
     }
 }

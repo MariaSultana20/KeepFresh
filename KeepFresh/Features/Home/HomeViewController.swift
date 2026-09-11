@@ -1,16 +1,22 @@
 import UIKit
 
-/// Home in its empty (no items yet) state, per the design spec: a greeting
-/// header, three zeroed summary cards (All Items / Expired / Expiring Soon),
-/// and an empty-state "Expiring Soon" section.
+/// Home, wired to real data: a greeting header, three summary cards (All
+/// Items / Expired / Expiring Soon), and an "Expiring Soon" section showing
+/// up to the five soonest-expiring active items — per the design spec, both
+/// read from the same `ItemRepository` and refresh every time this screen
+/// becomes visible (`viewWillAppear`), which is what picks up an item saved
+/// from the Add Item modal without any extra plumbing between the two.
 ///
-/// This screen intentionally has no data layer yet, even though
-/// `ItemRepository` exists and Home now lives in the five-tab shell
-/// (build plan commit 5). Wiring the summary cards and this section to
-/// real data is build plan commit 6, done alongside the Items list.
+/// Search/filtering, tapping through to Item Details, and the "See all"
+/// action on this section are still ahead (build plan commit 6's remaining
+/// scope) — this screen only displays, it doesn't yet navigate anywhere
+/// from a row tap.
 final class HomeViewController: UIViewController {
 
+    var onAddItemTapped: (() -> Void)?
+
     private let user: AuthUser
+    private let itemRepository: ItemRepository
 
     private lazy var greetingLabel: UILabel = {
         let label = UILabel()
@@ -29,6 +35,15 @@ final class HomeViewController: UIViewController {
         return stack
     }()
 
+    /// Holds either the "Expiring Soon" empty state or up to five
+    /// `ItemRowView`s, swapped out on every `refresh()`.
+    private let expiringSoonStack: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.spacing = 10
+        return stack
+    }()
+
     private let emptyStateView: EmptyStateView = {
         EmptyStateView(
             symbolName: "checkmark.seal",
@@ -37,8 +52,9 @@ final class HomeViewController: UIViewController {
         )
     }()
 
-    init(user: AuthUser) {
+    init(user: AuthUser, itemRepository: ItemRepository) {
         self.user = user
+        self.itemRepository = itemRepository
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -51,14 +67,18 @@ final class HomeViewController: UIViewController {
         layout()
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        Task { await refresh() }
+    }
+
     private func layout() {
         [SummaryCard.Kind.allItems, .expired, .expiringSoon].forEach { kind in
             summaryStack.addArrangedSubview(SummaryCard(kind: kind, count: 0))
         }
 
-        emptyStateView.onActionTapped = { [weak self] in
-            self?.presentComingSoon()
-        }
+        emptyStateView.onActionTapped = { [weak self] in self?.onAddItemTapped?() }
+        expiringSoonStack.addArrangedSubview(emptyStateView)
 
         let sectionHeader: UILabel = {
             let label = UILabel()
@@ -68,7 +88,7 @@ final class HomeViewController: UIViewController {
             return label
         }()
 
-        let stack = UIStackView(arrangedSubviews: [greetingLabel, summaryStack, sectionHeader, emptyStateView])
+        let stack = UIStackView(arrangedSubviews: [greetingLabel, summaryStack, sectionHeader, expiringSoonStack])
         stack.axis = .vertical
         stack.spacing = 20
         stack.setCustomSpacing(28, after: summaryStack)
@@ -82,16 +102,36 @@ final class HomeViewController: UIViewController {
         ])
     }
 
-    private func presentComingSoon() {
-        // TODO: route via AppCoordinator to the Item Editor once it exists
-        // (build plan commit 7) instead of showing this placeholder alert.
-        let alert = UIAlertController(
-            title: "Coming soon",
-            message: "Adding items isn't built yet.",
-            preferredStyle: .alert
-        )
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        present(alert, animated: true)
+    @MainActor
+    private func refresh() async {
+        // Best-effort: on failure, leave whatever was last displayed rather
+        // than blocking this screen with an alert it didn't ask to show —
+        // Items' own list is where a user-facing fetch error would surface.
+        guard let items = try? await itemRepository.fetchAll() else { return }
+        updateSummaryCards(with: items)
+        updateExpiringSoonSection(with: items)
+    }
+
+    private func updateSummaryCards(with items: [Item]) {
+        summaryStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        let expiredCount = items.filter { $0.status() == .expired }.count
+        let expiringSoonCount = items.filter { $0.status() == .expiringSoon }.count
+        summaryStack.addArrangedSubview(SummaryCard(kind: .allItems, count: items.count))
+        summaryStack.addArrangedSubview(SummaryCard(kind: .expired, count: expiredCount))
+        summaryStack.addArrangedSubview(SummaryCard(kind: .expiringSoon, count: expiringSoonCount))
+    }
+
+    private func updateExpiringSoonSection(with items: [Item]) {
+        expiringSoonStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        if items.isEmpty {
+            expiringSoonStack.addArrangedSubview(emptyStateView)
+        } else {
+            // itemRepository.fetchAll() is already sorted by expiry date
+            // ascending, so the first five are the soonest-expiring.
+            for item in items.prefix(5) {
+                expiringSoonStack.addArrangedSubview(ItemRowView(item: item))
+            }
+        }
     }
 }
 
