@@ -24,7 +24,7 @@ final class MockAuthService: AuthServiceProtocol {
     func signIn(email: String, password: String) async throws -> AuthUser {
         try await Task.sleep(nanoseconds: simulatedLatencyNanoseconds)
         guard password.count >= 6 else { throw AuthError.weakPassword }
-        guard email.contains("@") else { throw AuthError.invalidCredentials }
+        guard EmailValidator.isValid(email) else { throw AuthError.invalidCredentials }
         return AuthUser(id: "mock-email-\(email)", email: email, displayName: nil)
     }
 
@@ -34,7 +34,7 @@ final class MockAuthService: AuthServiceProtocol {
 
     func sendPasswordReset(email: String) async throws {
         try await Task.sleep(nanoseconds: simulatedLatencyNanoseconds)
-        guard email.contains("@") else { throw AuthError.invalidCredentials }
+        guard EmailValidator.isValid(email) else { throw AuthError.invalidCredentials }
         // Deliberately succeeds regardless of whether the email is
         // "registered" in this mock — see the protocol doc comment.
     }

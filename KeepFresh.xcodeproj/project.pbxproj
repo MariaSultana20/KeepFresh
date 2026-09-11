@@ -23,6 +23,7 @@
 		A857883F843B44ECB8F1B2B3 /* PasswordField.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2597C9AB1164C01BB5ACFA8 /* PasswordField.swift */; };
 		7F74D39874764738AF31671F /* DividerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018ED56446C14F9C861CCA16 /* DividerView.swift */; };
 		A6655CBAE33E480AB995040E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EF8C7AE17D4C4B1B8EAFA33B /* Assets.xcassets */; };
+		A7FCA5CBAFE5284215AC7E93 /* EmailValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 455FD6E6C78DC002BA2F61B0 /* EmailValidator.swift */; };
 		7C6F1004F2244447A022867C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		BB74F726D6064EFBB9878B48 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		EAE8C674597D41918EE1C7C9 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
@@ -43,6 +44,7 @@
 		DD5A914A7E32453797D4E005 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		82141C8D88F54715A24F88E4 /* KeepFresh.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = KeepFresh.entitlements; sourceTree = "<group>"; };
 		EF8C7AE17D4C4B1B8EAFA33B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		455FD6E6C78DC002BA2F61B0 /* EmailValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailValidator.swift; sourceTree = "<group>"; };
 		813B9029C86D490486ECAF36 /* KeepFresh.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KeepFresh.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		20EF5AAF9DFC487A81167EAB /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (
 			); runOnlyForDeploymentPostprocessing = 0; };
@@ -69,6 +71,7 @@
 		52A98B756CC84AC8A29AADA0 /* Services */ = {isa = PBXGroup; children = (
 				94D5C9186A26450CB2C8A812 /* AuthServiceProtocol.swift */,
 				C5F5890015404E0BAEF47DB3 /* MockAuthService.swift */,
+				455FD6E6C78DC002BA2F61B0 /* EmailValidator.swift */,
 			); path = Services; sourceTree = "<group>"; };
 		2DA9A77725CD4B1C96949D2E /* Shared */ = {isa = PBXGroup; children = (
 				A4A6769939244CB28C22ECC4 /* PrimaryButton.swift */,
@@ -139,6 +142,7 @@
 				FCEC865D698F4854AEF5B9BD /* EmptyStateView.swift in Sources */,
 				A857883F843B44ECB8F1B2B3 /* PasswordField.swift in Sources */,
 				7F74D39874764738AF31671F /* DividerView.swift in Sources */,
+				A7FCA5CBAFE5284215AC7E93 /* EmailValidator.swift in Sources */,
 			); runOnlyForDeploymentPostprocessing = 0; };
 		7CB20C4C45A84821B72EF311 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;

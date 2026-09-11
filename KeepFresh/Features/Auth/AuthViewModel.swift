@@ -56,7 +56,7 @@ final class AuthViewModel {
     }
 
     func sendPasswordReset(email: String) {
-        guard email.contains("@"), email.contains(".") else {
+        guard EmailValidator.isValid(email) else {
             errorMessage = "Enter a valid email address first."
             return
         }
@@ -80,7 +80,7 @@ final class AuthViewModel {
     /// and the UI can point at the specific field that's wrong.
     func validateSignIn(email: String, password: String) -> EmailFormValidation {
         var result = EmailFormValidation()
-        if !isValidEmail(email) {
+        if !EmailValidator.isValid(email) {
             result.emailError = "Enter a valid email address."
         }
         if password.count < 6 {
@@ -97,10 +97,6 @@ final class AuthViewModel {
             result.confirmPasswordError = "Passwords don't match."
         }
         return result
-    }
-
-    private func isValidEmail(_ email: String) -> Bool {
-        email.contains("@") && email.contains(".")
     }
 
     private func run(_ operation: @escaping () async throws -> AuthUser) {
