@@ -10,6 +10,7 @@ struct AuthUser: Equatable {
 enum AuthError: LocalizedError, Equatable {
     case cancelled
     case invalidCredentials
+    case emailAlreadyInUse
     case weakPassword
     case network
     case unknown(String)
@@ -20,6 +21,8 @@ enum AuthError: LocalizedError, Equatable {
             return nil // user-initiated cancel; nothing to show
         case .invalidCredentials:
             return "That email or password looks wrong."
+        case .emailAlreadyInUse:
+            return "An account with that email already exists."
         case .weakPassword:
             return "Password must be at least 6 characters."
         case .network:
