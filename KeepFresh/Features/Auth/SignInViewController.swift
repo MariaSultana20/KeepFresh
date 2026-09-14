@@ -21,6 +21,7 @@ final class SignInViewController: UIViewController {
     private let viewModel: AuthViewModel
     private var cancellables = Set<AnyCancellable>()
     private let feedbackGenerator = UINotificationFeedbackGenerator()
+    private var keyboardHelper: KeyboardAvoidingScrollHelper?
 
     // MARK: Views
 
@@ -145,7 +146,7 @@ final class SignInViewController: UIViewController {
         layout()
         bindActions()
         bindViewModel()
-        registerForKeyboardNotifications()
+        keyboardHelper = KeyboardAvoidingScrollHelper(scrollView: scrollView, hostView: view)
 
         emailField.delegate = self
         passwordField.delegate = self
@@ -412,36 +413,6 @@ final class SignInViewController: UIViewController {
 
     @objc private func createAccountTapped() {
         onCreateAccountTapped?()
-    }
-
-    // MARK: Keyboard avoidance
-
-    private func registerForKeyboardNotifications() {
-        NotificationCenter.default.addObserver(
-            self, selector: #selector(keyboardWillChange), name: UIResponder.keyboardWillShowNotification, object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self, selector: #selector(keyboardWillChange), name: UIResponder.keyboardWillHideNotification, object: nil
-        )
-    }
-
-    @objc private func keyboardWillChange(_ notification: Notification) {
-        guard let userInfo = notification.userInfo,
-              let endFrame = (userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
-        else { return }
-
-        let isShowing = notification.name == UIResponder.keyboardWillShowNotification
-        let overlap = isShowing ? view.convert(endFrame, from: nil).intersection(view.bounds).height : 0
-
-        let duration = (userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval) ?? 0.25
-        UIView.animate(withDuration: duration) {
-            self.scrollView.contentInset.bottom = overlap
-            self.scrollView.verticalScrollIndicatorInsets.bottom = overlap
-        }
-    }
-
-    deinit {
-        NotificationCenter.default.removeObserver(self)
     }
 }
 
