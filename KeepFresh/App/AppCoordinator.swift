@@ -114,7 +114,9 @@ final class AppCoordinator: NSObject {
         self.notificationsCoordinator = notificationsCoordinator
 
         let profileNavigationController = UINavigationController()
-        let profileCoordinator = ProfileCoordinator(navigationController: profileNavigationController, user: user)
+        let profileCoordinator = ProfileCoordinator(
+            navigationController: profileNavigationController, user: user, authService: authService
+        )
         profileCoordinator.onSignOut = { [weak self] in
             self?.signOut()
         }

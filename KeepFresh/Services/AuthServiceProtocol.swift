@@ -51,4 +51,10 @@ protocol AuthServiceProtocol {
     /// call's outcome.
     func sendPasswordReset(email: String) async throws
     func signOut() async throws
+    /// Returns a copy of `user` with `displayName` updated. Takes the
+    /// current user explicitly rather than assuming a "current session"
+    /// the protocol doesn't otherwise model — `MockAuthService` has no
+    /// backing store to look one up in, and a real implementation
+    /// shouldn't need one either to answer "update this user's name."
+    func updateDisplayName(_ displayName: String, for user: AuthUser) async throws -> AuthUser
 }

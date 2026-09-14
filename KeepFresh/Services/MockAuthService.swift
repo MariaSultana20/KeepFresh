@@ -42,4 +42,9 @@ final class MockAuthService: AuthServiceProtocol {
     func signOut() async throws {
         try await Task.sleep(nanoseconds: 100_000_000)
     }
+
+    func updateDisplayName(_ displayName: String, for user: AuthUser) async throws -> AuthUser {
+        try await Task.sleep(nanoseconds: simulatedLatencyNanoseconds)
+        return AuthUser(id: user.id, email: user.email, displayName: displayName)
+    }
 }
