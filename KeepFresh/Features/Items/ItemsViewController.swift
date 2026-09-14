@@ -6,10 +6,10 @@ import UIKit
 /// picks up an item saved from the Add Item modal, or an edit/delete made
 /// from Item Details after popping back.
 ///
-/// Search and a status filter now sit above the list — see
-/// `claude/KeepFresh-Mockup-Gap-Analysis-and-Plan.md` Phase B items 6+8.
-/// Category filter + sort order are still ahead. Each row pushes through
-/// to Item Details.
+/// Search and a status filter sit above the list, and a nav-bar filter
+/// menu adds category + sort order on top — see
+/// `claude/KeepFresh-Mockup-Gap-Analysis-and-Plan.md` Phase B items 6-8.
+/// Each row pushes through to Item Details.
 final class ItemsViewController: UIViewController {
 
     private enum StatusFilter: Int, CaseIterable {
@@ -21,6 +21,22 @@ final class ItemsViewController: UIViewController {
             case .expired: return "Expired"
             case .expiringSoon: return "Expiring Soon"
             case .good: return "Good"
+            }
+        }
+    }
+
+    /// Sort order offered by the nav-bar filter menu — "Expiry Date
+    /// (Soonest)" matches `ItemRepository.fetchAll()`'s own ordering, so
+    /// it's the default rather than a separate re-sort of already-sorted
+    /// data.
+    private enum SortOrder: CaseIterable {
+        case expirySoonest, expiryLatest, nameAscending
+
+        var title: String {
+            switch self {
+            case .expirySoonest: return "Expiry Date (Soonest)"
+            case .expiryLatest: return "Expiry Date (Latest)"
+            case .nameAscending: return "Name (A–Z)"
             }
         }
     }
@@ -38,6 +54,12 @@ final class ItemsViewController: UIViewController {
     /// network-backed search would.
     private var allItems: [Item] = []
     private var selectedStatusFilter: StatusFilter = .all
+    /// nil means "All Categories" — options are derived from whatever
+    /// categories are actually present in `allItems`, not a hardcoded
+    /// preset list, so a custom "Other" category the user typed shows
+    /// up as a real filter option too.
+    private var selectedCategory: String?
+    private var selectedSortOrder: SortOrder = .expirySoonest
 
     private lazy var searchController: UISearchController = {
         let controller = UISearchController(searchResultsController: nil)
@@ -53,6 +75,16 @@ final class ItemsViewController: UIViewController {
         control.addTarget(self, action: #selector(statusFilterChanged), for: .valueChanged)
         return control
     }()
+
+    /// Category filter + sort order, per the Mockup-Gap-Analysis's
+    /// recommendation: a UIMenu on a nav-bar button rather than a second
+    /// pushed "Filter & Sort" screen — a four-ish-item category list and a
+    /// three-item sort order don't carry their own screen well, and the
+    /// mockup's own inline status pills already cover status filtering
+    /// (see the previous commit).
+    private lazy var filterBarButtonItem = UIBarButtonItem(
+        image: UIImage(systemName: "line.3.horizontal.decrease.circle")
+    )
 
     private let emptyStateView = EmptyStateView(
         symbolName: "shippingbox",
@@ -89,6 +121,7 @@ final class ItemsViewController: UIViewController {
         view.backgroundColor = AppTheme.Color.background
         navigationItem.searchController = searchController
         navigationItem.hidesSearchBarWhenScrolling = true
+        navigationItem.rightBarButtonItem = filterBarButtonItem
         definesPresentationContext = true
         layout()
     }
@@ -143,6 +176,7 @@ final class ItemsViewController: UIViewController {
     /// text and status filter — called on refresh, on every search-text
     /// change, and whenever the status filter changes.
     private func render() {
+        updateFilterMenu()
         contentStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
 
         guard !allItems.isEmpty else {
@@ -166,9 +200,57 @@ final class ItemsViewController: UIViewController {
 
     private func filteredItems() -> [Item] {
         let query = searchController.searchBar.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        return allItems.filter { item in
-            matchesStatusFilter(item) && matchesSearch(item, query: query)
+        let matching = allItems.filter { item in
+            matchesStatusFilter(item) && matchesSearch(item, query: query) && matchesCategory(item)
         }
+        return sorted(matching)
+    }
+
+    private func matchesCategory(_ item: Item) -> Bool {
+        guard let selectedCategory else { return true }
+        return item.category.trimmingCharacters(in: .whitespaces) == selectedCategory
+    }
+
+    private func sorted(_ items: [Item]) -> [Item] {
+        switch selectedSortOrder {
+        case .expirySoonest:
+            return items.sorted { $0.expiryDate < $1.expiryDate }
+        case .expiryLatest:
+            return items.sorted { $0.expiryDate > $1.expiryDate }
+        case .nameAscending:
+            return items.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+        }
+    }
+
+    /// Rebuilds the filter menu's two submenus (Category, Sort By) from
+    /// the current `allItems`/selection every time it's called, so a
+    /// newly-added item's category shows up as a filter option and the
+    /// checkmarks always reflect what's actually applied.
+    private func updateFilterMenu() {
+        let categories = Set(allItems.map { $0.category.trimmingCharacters(in: .whitespaces) })
+            .sorted { $0.localizedStandardCompare($1) == .orderedAscending }
+
+        var categoryActions = [UIAction(title: "All Categories", state: selectedCategory == nil ? .on : .off) { [weak self] _ in
+            self?.selectedCategory = nil
+            self?.render()
+        }]
+        categoryActions += categories.map { category in
+            UIAction(title: category, state: selectedCategory == category ? .on : .off) { [weak self] _ in
+                self?.selectedCategory = category
+                self?.render()
+            }
+        }
+        let categoryMenu = UIMenu(title: "Category", options: .singleSelection, children: categoryActions)
+
+        let sortActions = SortOrder.allCases.map { order in
+            UIAction(title: order.title, state: order == selectedSortOrder ? .on : .off) { [weak self] _ in
+                self?.selectedSortOrder = order
+                self?.render()
+            }
+        }
+        let sortMenu = UIMenu(title: "Sort By", options: .singleSelection, children: sortActions)
+
+        filterBarButtonItem.menu = UIMenu(children: [categoryMenu, sortMenu])
     }
 
     private func matchesStatusFilter(_ item: Item) -> Bool {
