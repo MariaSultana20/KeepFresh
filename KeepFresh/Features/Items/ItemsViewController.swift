@@ -6,19 +6,64 @@ import UIKit
 /// picks up an item saved from the Add Item modal, or an edit/delete made
 /// from Item Details after popping back.
 ///
-/// Search, category grouping, and filter/sort are still ahead — see the
-/// accompanying review — but each row now pushes through to Item Details.
+/// Search and a status filter now sit above the list — see
+/// `claude/KeepFresh-Mockup-Gap-Analysis-and-Plan.md` Phase B items 6+8.
+/// Category filter + sort order are still ahead. Each row pushes through
+/// to Item Details.
 final class ItemsViewController: UIViewController {
+
+    private enum StatusFilter: Int, CaseIterable {
+        case all, expired, expiringSoon, good
+
+        var title: String {
+            switch self {
+            case .all: return "All"
+            case .expired: return "Expired"
+            case .expiringSoon: return "Expiring Soon"
+            case .good: return "Good"
+            }
+        }
+    }
 
     var onAddItemTapped: (() -> Void)?
     var onItemSelected: ((Item) -> Void)?
 
     private let itemRepository: ItemRepository
 
+    /// Every item from the repository, unfiltered — `filteredItems`
+    /// derives the displayed list from this plus the search text and
+    /// `selectedStatusFilter`, both applied client-side. The dataset is
+    /// small and entirely local, so there's no need to push filtering into
+    /// the repository layer or debounce the search field the way a
+    /// network-backed search would.
+    private var allItems: [Item] = []
+    private var selectedStatusFilter: StatusFilter = .all
+
+    private lazy var searchController: UISearchController = {
+        let controller = UISearchController(searchResultsController: nil)
+        controller.searchResultsUpdater = self
+        controller.obscuresBackgroundDuringPresentation = false
+        controller.searchBar.placeholder = "Search by name or category"
+        return controller
+    }()
+
+    private lazy var statusFilterControl: UISegmentedControl = {
+        let control = UISegmentedControl(items: StatusFilter.allCases.map(\.title))
+        control.selectedSegmentIndex = StatusFilter.all.rawValue
+        control.addTarget(self, action: #selector(statusFilterChanged), for: .valueChanged)
+        return control
+    }()
+
     private let emptyStateView = EmptyStateView(
         symbolName: "shippingbox",
         title: "No items yet",
         actionTitle: "Add an item"
+    )
+
+    private let noResultsView = EmptyStateView(
+        symbolName: "magnifyingglass",
+        title: "No items match your search or filter",
+        actionTitle: nil
     )
 
     private let scrollView = UIScrollView()
@@ -42,6 +87,9 @@ final class ItemsViewController: UIViewController {
         super.viewDidLoad()
         title = "Items"
         view.backgroundColor = AppTheme.Color.background
+        navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = true
+        definesPresentationContext = true
         layout()
     }
 
@@ -87,12 +135,28 @@ final class ItemsViewController: UIViewController {
         // than replacing it with a blocking alert every time this tab is
         // shown.
         guard let items = try? await itemRepository.fetchAll() else { return }
+        allItems = items
+        render()
+    }
+
+    /// Rebuilds the visible rows from `allItems` plus the current search
+    /// text and status filter — called on refresh, on every search-text
+    /// change, and whenever the status filter changes.
+    private func render() {
         contentStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
 
-        if items.isEmpty {
+        guard !allItems.isEmpty else {
             contentStack.addArrangedSubview(emptyStateView)
+            return
+        }
+
+        contentStack.addArrangedSubview(statusFilterControl)
+
+        let visibleItems = filteredItems()
+        if visibleItems.isEmpty {
+            contentStack.addArrangedSubview(noResultsView)
         } else {
-            for item in items {
+            for item in visibleItems {
                 let row = ItemRowView(item: item)
                 row.addTarget(self, action: #selector(rowTapped(_:)), for: .touchUpInside)
                 contentStack.addArrangedSubview(row)
@@ -100,7 +164,42 @@ final class ItemsViewController: UIViewController {
         }
     }
 
+    private func filteredItems() -> [Item] {
+        let query = searchController.searchBar.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return allItems.filter { item in
+            matchesStatusFilter(item) && matchesSearch(item, query: query)
+        }
+    }
+
+    private func matchesStatusFilter(_ item: Item) -> Bool {
+        switch selectedStatusFilter {
+        case .all: return true
+        case .expired: return item.status() == .expired
+        case .expiringSoon: return item.status() == .expiringSoon
+        case .good: return item.status() == .good
+        }
+    }
+
+    /// Case- and diacritic-insensitive, per implementation-plan.md §4's
+    /// Items spec — `localizedStandardContains` already gives us that
+    /// without hand-rolling folding/normalization.
+    private func matchesSearch(_ item: Item, query: String) -> Bool {
+        guard !query.isEmpty else { return true }
+        return item.name.localizedStandardContains(query) || item.category.localizedStandardContains(query)
+    }
+
+    @objc private func statusFilterChanged() {
+        selectedStatusFilter = StatusFilter(rawValue: statusFilterControl.selectedSegmentIndex) ?? .all
+        render()
+    }
+
     @objc private func rowTapped(_ sender: ItemRowView) {
         onItemSelected?(sender.item)
+    }
+}
+
+extension ItemsViewController: UISearchResultsUpdating {
+    func updateSearchResults(for searchController: UISearchController) {
+        render()
     }
 }
