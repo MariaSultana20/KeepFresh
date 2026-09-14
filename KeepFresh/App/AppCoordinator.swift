@@ -19,6 +19,7 @@ final class AppCoordinator: NSObject {
     private let window: UIWindow
     private let authService: AuthServiceProtocol
     private let itemRepository: ItemRepository
+    private let notificationService: NotificationServiceProtocol
 
     private var authCoordinator: AuthCoordinator?
     private var homeCoordinator: HomeCoordinator?
@@ -41,11 +42,13 @@ final class AppCoordinator: NSObject {
     init(
         window: UIWindow,
         itemRepository: ItemRepository,
-        authService: AuthServiceProtocol = MockAuthService()
+        authService: AuthServiceProtocol = MockAuthService(),
+        notificationService: NotificationServiceProtocol = LocalNotificationService()
     ) {
         self.window = window
         self.itemRepository = itemRepository
         self.authService = authService
+        self.notificationService = notificationService
         super.init()
     }
 
@@ -82,14 +85,18 @@ final class AppCoordinator: NSObject {
 
         let homeNavigationController = UINavigationController()
         let homeCoordinator = HomeCoordinator(
-            navigationController: homeNavigationController, user: user, itemRepository: itemRepository
+            navigationController: homeNavigationController, user: user,
+            itemRepository: itemRepository, notificationService: notificationService
         )
         homeCoordinator.onAddItemTapped = { [weak self] in self?.presentAddItem() }
         homeCoordinator.start()
         self.homeCoordinator = homeCoordinator
 
         let itemsNavigationController = UINavigationController()
-        let itemsCoordinator = ItemsCoordinator(navigationController: itemsNavigationController, itemRepository: itemRepository)
+        let itemsCoordinator = ItemsCoordinator(
+            navigationController: itemsNavigationController,
+            itemRepository: itemRepository, notificationService: notificationService
+        )
         itemsCoordinator.onAddItemTapped = { [weak self] in self?.presentAddItem() }
         itemsCoordinator.start()
         self.itemsCoordinator = itemsCoordinator
@@ -132,7 +139,10 @@ final class AppCoordinator: NSObject {
     /// presented.
     private func presentAddItem() {
         guard let tabBarController else { return }
-        AddItemCoordinator(presentingViewController: tabBarController, itemRepository: itemRepository).start()
+        AddItemCoordinator(
+            presentingViewController: tabBarController,
+            itemRepository: itemRepository, notificationService: notificationService
+        ).start()
     }
 
     private func signOut() {

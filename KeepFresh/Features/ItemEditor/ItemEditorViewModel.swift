@@ -30,6 +30,7 @@ final class ItemEditorViewModel {
     /// other field is replaced by whatever the form currently holds.
     private let existingItem: Item?
     private let itemRepository: ItemRepository
+    private let notificationService: NotificationServiceProtocol
 
     @Published private(set) var isLoading = false
     @Published private(set) var errorMessage: String?
@@ -61,8 +62,9 @@ final class ItemEditorViewModel {
         isEditing ? nil : Calendar.current.startOfDay(for: Date())
     }
 
-    init(itemRepository: ItemRepository, existingItem: Item? = nil) {
+    init(itemRepository: ItemRepository, notificationService: NotificationServiceProtocol, existingItem: Item? = nil) {
         self.itemRepository = itemRepository
+        self.notificationService = notificationService
         self.existingItem = existingItem
     }
 
@@ -104,7 +106,7 @@ final class ItemEditorViewModel {
         isLoading = true
 
         let trimmedNote = note.trimmingCharacters(in: .whitespacesAndNewlines)
-        let item = Item(
+        var item = Item(
             id: existingItem?.id ?? UUID(),
             name: name.trimmingCharacters(in: .whitespacesAndNewlines),
             category: category.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -114,6 +116,10 @@ final class ItemEditorViewModel {
             expiryDate: expiryDate,
             note: trimmedNote.isEmpty ? nil : trimmedNote,
             reminderDaysBefore: reminderDaysBefore,
+            // Starting point for notificationService.reschedule(for:) below —
+            // it reads this as "what to cancel first," then the return
+            // value (fresh identifiers, or none if the reminder would
+            // already be in the past) replaces it before the single save.
             notificationIdentifiers: existingItem?.notificationIdentifiers ?? [],
             createdAt: existingItem?.createdAt ?? Date(),
             updatedAt: Date()
@@ -121,6 +127,7 @@ final class ItemEditorViewModel {
 
         Task {
             defer { isLoading = false }
+            item.notificationIdentifiers = await notificationService.reschedule(for: item)
             do {
                 try await itemRepository.save(item)
                 onSaved?(item)

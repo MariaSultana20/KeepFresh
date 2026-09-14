@@ -11,11 +11,16 @@ final class HomeCoordinator {
     private let navigationController: UINavigationController
     private let user: AuthUser
     private let itemRepository: ItemRepository
+    private let notificationService: NotificationServiceProtocol
 
-    init(navigationController: UINavigationController, user: AuthUser, itemRepository: ItemRepository) {
+    init(
+        navigationController: UINavigationController, user: AuthUser,
+        itemRepository: ItemRepository, notificationService: NotificationServiceProtocol
+    ) {
         self.navigationController = navigationController
         self.user = user
         self.itemRepository = itemRepository
+        self.notificationService = notificationService
     }
 
     func start() {
@@ -29,7 +34,9 @@ final class HomeCoordinator {
     }
 
     private func showItemDetails(for item: Item) {
-        let detailsViewController = ItemDetailsViewController(item: item, itemRepository: itemRepository)
+        let detailsViewController = ItemDetailsViewController(
+            item: item, itemRepository: itemRepository, notificationService: notificationService
+        )
         navigationController.pushViewController(detailsViewController, animated: true)
     }
 }

@@ -16,6 +16,7 @@ final class AddItemCoordinator {
 
     private weak var presentingViewController: UIViewController?
     private let itemRepository: ItemRepository
+    private let notificationService: NotificationServiceProtocol
     private let existingItem: Item?
     /// Called after a successful save, in addition to (not instead of) the
     /// dismissal below. Item Details passes this so it can update its own
@@ -27,17 +28,21 @@ final class AddItemCoordinator {
     init(
         presentingViewController: UIViewController,
         itemRepository: ItemRepository,
+        notificationService: NotificationServiceProtocol,
         existingItem: Item? = nil,
         onSaved: ((Item) -> Void)? = nil
     ) {
         self.presentingViewController = presentingViewController
         self.itemRepository = itemRepository
+        self.notificationService = notificationService
         self.existingItem = existingItem
         self.onSaved = onSaved
     }
 
     func start() {
-        let viewModel = ItemEditorViewModel(itemRepository: itemRepository, existingItem: existingItem)
+        let viewModel = ItemEditorViewModel(
+            itemRepository: itemRepository, notificationService: notificationService, existingItem: existingItem
+        )
         viewModel.onSaved = { [weak self] item in
             self?.presentingViewController?.dismiss(animated: true)
             self?.onSaved?(item)

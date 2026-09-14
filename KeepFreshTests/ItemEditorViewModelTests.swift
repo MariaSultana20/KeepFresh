@@ -17,45 +17,45 @@ final class ItemEditorViewModelTests: XCTestCase {
     // MARK: - Validation
 
     func test_validate_emptyName_producesNameError() {
-        let viewModel = ItemEditorViewModel(itemRepository: InMemoryItemRepository())
+        let viewModel = ItemEditorViewModel(itemRepository: InMemoryItemRepository(), notificationService: InMemoryNotificationService())
         let result = viewModel.validate(name: "   ", category: "Dairy", quantityText: "1", expiryDate: expiryDate())
         XCTAssertNotNil(result.nameError)
         XCTAssertFalse(result.isValid)
     }
 
     func test_validate_emptyCategory_producesCategoryError() {
-        let viewModel = ItemEditorViewModel(itemRepository: InMemoryItemRepository())
+        let viewModel = ItemEditorViewModel(itemRepository: InMemoryItemRepository(), notificationService: InMemoryNotificationService())
         let result = viewModel.validate(name: "Milk", category: "   ", quantityText: "1", expiryDate: expiryDate())
         XCTAssertNotNil(result.categoryError)
         XCTAssertFalse(result.isValid)
     }
 
     func test_validate_zeroQuantity_producesQuantityError() {
-        let viewModel = ItemEditorViewModel(itemRepository: InMemoryItemRepository())
+        let viewModel = ItemEditorViewModel(itemRepository: InMemoryItemRepository(), notificationService: InMemoryNotificationService())
         let result = viewModel.validate(name: "Milk", category: "Dairy", quantityText: "0", expiryDate: expiryDate())
         XCTAssertNotNil(result.quantityError)
     }
 
     func test_validate_negativeQuantity_producesQuantityError() {
-        let viewModel = ItemEditorViewModel(itemRepository: InMemoryItemRepository())
+        let viewModel = ItemEditorViewModel(itemRepository: InMemoryItemRepository(), notificationService: InMemoryNotificationService())
         let result = viewModel.validate(name: "Milk", category: "Dairy", quantityText: "-2", expiryDate: expiryDate())
         XCTAssertNotNil(result.quantityError)
     }
 
     func test_validate_nonNumericQuantity_producesQuantityError() {
-        let viewModel = ItemEditorViewModel(itemRepository: InMemoryItemRepository())
+        let viewModel = ItemEditorViewModel(itemRepository: InMemoryItemRepository(), notificationService: InMemoryNotificationService())
         let result = viewModel.validate(name: "Milk", category: "Dairy", quantityText: "abc", expiryDate: expiryDate())
         XCTAssertNotNil(result.quantityError)
     }
 
     func test_validate_nilExpiryDate_producesExpiryDateError() {
-        let viewModel = ItemEditorViewModel(itemRepository: InMemoryItemRepository())
+        let viewModel = ItemEditorViewModel(itemRepository: InMemoryItemRepository(), notificationService: InMemoryNotificationService())
         let result = viewModel.validate(name: "Milk", category: "Dairy", quantityText: "1", expiryDate: nil)
         XCTAssertNotNil(result.expiryDateError)
     }
 
     func test_validate_allFieldsValid_isValid() {
-        let viewModel = ItemEditorViewModel(itemRepository: InMemoryItemRepository())
+        let viewModel = ItemEditorViewModel(itemRepository: InMemoryItemRepository(), notificationService: InMemoryNotificationService())
         let result = viewModel.validate(name: "Milk", category: "Dairy", quantityText: "1", expiryDate: expiryDate())
         XCTAssertTrue(result.isValid)
     }
@@ -63,7 +63,7 @@ final class ItemEditorViewModelTests: XCTestCase {
     // MARK: - Add mode
 
     func test_addMode_initialValues_areDefaults() {
-        let viewModel = ItemEditorViewModel(itemRepository: InMemoryItemRepository())
+        let viewModel = ItemEditorViewModel(itemRepository: InMemoryItemRepository(), notificationService: InMemoryNotificationService())
         XCTAssertFalse(viewModel.isEditing)
         XCTAssertEqual(viewModel.navigationTitle, "Add Item")
         XCTAssertEqual(viewModel.saveButtonTitle, "Add Item")
@@ -77,7 +77,7 @@ final class ItemEditorViewModelTests: XCTestCase {
 
     func test_addMode_save_createsANewItemWithFreshIdentity() async throws {
         let repository = InMemoryItemRepository()
-        let viewModel = ItemEditorViewModel(itemRepository: repository)
+        let viewModel = ItemEditorViewModel(itemRepository: repository, notificationService: InMemoryNotificationService())
 
         let didSave = expectation(description: "onSaved")
         var savedItem: Item?
@@ -112,7 +112,9 @@ final class ItemEditorViewModelTests: XCTestCase {
             purchaseDate: Date(), expiryDate: expiryDate(daysFromNow: -2), // already expired
             note: "Family size", reminderDaysBefore: 1
         )
-        let viewModel = ItemEditorViewModel(itemRepository: InMemoryItemRepository(), existingItem: existing)
+        let viewModel = ItemEditorViewModel(
+            itemRepository: InMemoryItemRepository(), notificationService: InMemoryNotificationService(), existingItem: existing
+        )
 
         XCTAssertTrue(viewModel.isEditing)
         XCTAssertEqual(viewModel.navigationTitle, "Edit Item")
@@ -134,7 +136,9 @@ final class ItemEditorViewModelTests: XCTestCase {
             createdAt: Date().addingTimeInterval(-86_400)
         )
         let repository = InMemoryItemRepository(seedItems: [existing])
-        let viewModel = ItemEditorViewModel(itemRepository: repository, existingItem: existing)
+        let viewModel = ItemEditorViewModel(
+            itemRepository: repository, notificationService: InMemoryNotificationService(), existingItem: existing
+        )
 
         let didSave = expectation(description: "onSaved")
         var savedItem: Item?

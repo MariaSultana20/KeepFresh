@@ -34,6 +34,7 @@
 		228DD335CF79686AD03AA0B5 /* ItemRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A814A9869DD3651840C25F4A /* ItemRepository.swift */; };
 		20703D8A05014D8028DCEA0E /* ItemEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92D50EC85B5D48E3AE42BDF9 /* ItemEntity.swift */; };
 		F1050563E13192877C4DB9BE /* SwiftDataItemRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D3556BB6F903DDACA030E73 /* SwiftDataItemRepository.swift */; };
+		17363902CDC10B4B173AD81B /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7327FF941AB6855F92F850EF /* NotificationService.swift */; };
 		23F0CD32EB82427E9DFBBBD4 /* InMemoryItemRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B16A520F15E5DBE2328BFCCC /* InMemoryItemRepository.swift */; };
 		811A9E4A25ECA4B5CAAD2391 /* ItemRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06BB48A20A71EF5131EB547A /* ItemRepositoryTests.swift */; };
 		81EDE2D9CAFD83C1C86E9363 /* ItemEditorViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAFBE87B0C731F279A7FCC3 /* ItemEditorViewModelTests.swift */; };
@@ -80,6 +81,7 @@
 		A814A9869DD3651840C25F4A /* ItemRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemRepository.swift; sourceTree = "<group>"; };
 		92D50EC85B5D48E3AE42BDF9 /* ItemEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemEntity.swift; sourceTree = "<group>"; };
 		7D3556BB6F903DDACA030E73 /* SwiftDataItemRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftDataItemRepository.swift; sourceTree = "<group>"; };
+		7327FF941AB6855F92F850EF /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		B16A520F15E5DBE2328BFCCC /* InMemoryItemRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InMemoryItemRepository.swift; sourceTree = "<group>"; };
 		06BB48A20A71EF5131EB547A /* ItemRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemRepositoryTests.swift; sourceTree = "<group>"; };
 		AAAFBE87B0C731F279A7FCC3 /* ItemEditorViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemEditorViewModelTests.swift; sourceTree = "<group>"; };
@@ -154,6 +156,7 @@
 				A814A9869DD3651840C25F4A /* ItemRepository.swift */,
 				92D50EC85B5D48E3AE42BDF9 /* ItemEntity.swift */,
 				7D3556BB6F903DDACA030E73 /* SwiftDataItemRepository.swift */,
+				7327FF941AB6855F92F850EF /* NotificationService.swift */,
 				B16A520F15E5DBE2328BFCCC /* InMemoryItemRepository.swift */,
 			); path = Services; sourceTree = "<group>"; };
 		2DA9A77725CD4B1C96949D2E /* Shared */ = {isa = PBXGroup; children = (
@@ -265,6 +268,7 @@
 				228DD335CF79686AD03AA0B5 /* ItemRepository.swift in Sources */,
 				20703D8A05014D8028DCEA0E /* ItemEntity.swift in Sources */,
 				F1050563E13192877C4DB9BE /* SwiftDataItemRepository.swift in Sources */,
+				17363902CDC10B4B173AD81B /* NotificationService.swift in Sources */,
 				23F0CD32EB82427E9DFBBBD4 /* InMemoryItemRepository.swift in Sources */,
 				9A369412E1FD400A71957234 /* ItemsCoordinator.swift in Sources */,
 				540227294D566390583EA838 /* ItemsViewController.swift in Sources */,

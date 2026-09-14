@@ -12,10 +12,15 @@ final class ItemsCoordinator {
 
     private let navigationController: UINavigationController
     private let itemRepository: ItemRepository
+    private let notificationService: NotificationServiceProtocol
 
-    init(navigationController: UINavigationController, itemRepository: ItemRepository) {
+    init(
+        navigationController: UINavigationController,
+        itemRepository: ItemRepository, notificationService: NotificationServiceProtocol
+    ) {
         self.navigationController = navigationController
         self.itemRepository = itemRepository
+        self.notificationService = notificationService
     }
 
     func start() {
@@ -29,7 +34,9 @@ final class ItemsCoordinator {
     }
 
     private func showItemDetails(for item: Item) {
-        let detailsViewController = ItemDetailsViewController(item: item, itemRepository: itemRepository)
+        let detailsViewController = ItemDetailsViewController(
+            item: item, itemRepository: itemRepository, notificationService: notificationService
+        )
         navigationController.pushViewController(detailsViewController, animated: true)
     }
 }

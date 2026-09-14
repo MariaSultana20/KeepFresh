@@ -13,6 +13,7 @@ final class ItemDetailsViewController: UIViewController {
 
     private var item: Item
     private let itemRepository: ItemRepository
+    private let notificationService: NotificationServiceProtocol
     private let feedbackGenerator = UINotificationFeedbackGenerator()
 
     // MARK: Views
@@ -85,9 +86,10 @@ final class ItemDetailsViewController: UIViewController {
         return button
     }()
 
-    init(item: Item, itemRepository: ItemRepository) {
+    init(item: Item, itemRepository: ItemRepository, notificationService: NotificationServiceProtocol) {
         self.item = item
         self.itemRepository = itemRepository
+        self.notificationService = notificationService
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -223,7 +225,8 @@ final class ItemDetailsViewController: UIViewController {
 
     @objc private func editTapped() {
         AddItemCoordinator(
-            presentingViewController: self, itemRepository: itemRepository, existingItem: item
+            presentingViewController: self, itemRepository: itemRepository,
+            notificationService: notificationService, existingItem: item
         ) { [weak self] updatedItem in
             self?.item = updatedItem
             self?.refreshDisplayedFields()
@@ -245,6 +248,11 @@ final class ItemDetailsViewController: UIViewController {
     private func performDelete() async {
         do {
             try await itemRepository.delete(id: item.id)
+            // Cancel only after the delete actually succeeds — an item
+            // that failed to delete should keep its working reminder
+            // rather than silently losing it while still sitting in the
+            // list.
+            notificationService.cancel(identifiers: item.notificationIdentifiers)
             feedbackGenerator.notificationOccurred(.success)
             navigationController?.popViewController(animated: true)
         } catch {
