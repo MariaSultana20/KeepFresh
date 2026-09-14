@@ -37,6 +37,16 @@ enum NotificationScheduling {
     }()
 }
 
+/// A reminder currently scheduled for some item — the Notifications tab's
+/// data source. Deliberately doesn't carry the item's own fields (name,
+/// category, ...) since the caller already has an `ItemRepository` to
+/// resolve `itemID` against; duplicating them here would just be another
+/// place they could drift out of sync with the real item.
+struct ScheduledReminder: Equatable {
+    let itemID: UUID
+    let fireDate: Date
+}
+
 /// Abstraction over local notification scheduling — the seam between
 /// ItemEditorViewModel/ItemDetailsViewController and however reminders are
 /// actually delivered, mirroring how `AuthServiceProtocol` and
@@ -55,6 +65,11 @@ protocol NotificationServiceProtocol {
     /// Cancels pending reminders for identifiers already known to be
     /// stale (e.g. the item was deleted). No-ops for an empty array.
     func cancel(identifiers: [String])
+
+    /// Everything currently scheduled — the Notifications tab reads this
+    /// to show "what's coming up" without keeping its own separate,
+    /// persisted notification-history log. Ordering is the caller's job.
+    func pendingReminders() async -> [ScheduledReminder]
 }
 
 /// `UNUserNotificationCenter`-backed reminders — the real, shipping
@@ -116,6 +131,17 @@ final class LocalNotificationService: NotificationServiceProtocol {
         center.removePendingNotificationRequests(withIdentifiers: identifiers)
     }
 
+    func pendingReminders() async -> [ScheduledReminder] {
+        await center.pendingNotificationRequests().compactMap { request in
+            guard let itemIDString = request.content.userInfo["itemID"] as? String,
+                  let itemID = UUID(uuidString: itemIDString),
+                  let trigger = request.trigger as? UNCalendarNotificationTrigger,
+                  let fireDate = trigger.nextTriggerDate()
+            else { return nil }
+            return ScheduledReminder(itemID: itemID, fireDate: fireDate)
+        }
+    }
+
     private func requestAuthorizationIfNeeded() async {
         let settings = await center.notificationSettings()
         guard settings.authorizationStatus == .notDetermined else { return }
@@ -128,8 +154,10 @@ final class LocalNotificationService: NotificationServiceProtocol {
 /// or ever prompting for permission, the same role `InMemoryItemRepository`
 /// plays for persistence.
 final class InMemoryNotificationService: NotificationServiceProtocol {
-    private(set) var scheduledIdentifiers: Set<String> = []
+    private(set) var scheduled: [String: ScheduledReminder] = [:]
     private(set) var rescheduleCallCount = 0
+
+    var scheduledIdentifiers: Set<String> { Set(scheduled.keys) }
 
     func reschedule(for item: Item) async -> [String] {
         rescheduleCallCount += 1
@@ -140,11 +168,15 @@ final class InMemoryNotificationService: NotificationServiceProtocol {
         }
 
         let identifier = NotificationScheduling.identifier(for: item)
-        scheduledIdentifiers.insert(identifier)
+        scheduled[identifier] = ScheduledReminder(itemID: item.id, fireDate: fireDate)
         return [identifier]
     }
 
     func cancel(identifiers: [String]) {
-        identifiers.forEach { scheduledIdentifiers.remove($0) }
+        identifiers.forEach { scheduled.removeValue(forKey: $0) }
+    }
+
+    func pendingReminders() async -> [ScheduledReminder] {
+        Array(scheduled.values)
     }
 }

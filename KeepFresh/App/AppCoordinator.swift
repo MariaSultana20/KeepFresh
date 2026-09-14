@@ -106,7 +106,10 @@ final class AppCoordinator: NSObject {
         )
 
         let notificationsNavigationController = UINavigationController()
-        let notificationsCoordinator = NotificationsCoordinator(navigationController: notificationsNavigationController)
+        let notificationsCoordinator = NotificationsCoordinator(
+            navigationController: notificationsNavigationController,
+            itemRepository: itemRepository, notificationService: notificationService
+        )
         notificationsCoordinator.start()
         self.notificationsCoordinator = notificationsCoordinator
 
