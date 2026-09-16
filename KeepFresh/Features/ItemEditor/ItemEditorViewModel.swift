@@ -37,6 +37,12 @@ final class ItemEditorViewModel {
 
     /// Set by the coordinator; called once `save` succeeds.
     var onSaved: ((Item) -> Void)?
+    /// Set by the coordinator; called when the user taps Cancel. Routing
+    /// cancellation through here (rather than the view controller calling
+    /// `dismiss` on itself directly) keeps the coordinator as the single
+    /// place that owns presenting *and* dismissing this modal, matching
+    /// `AddItemCoordinator`'s own doc comment.
+    var onCancel: (() -> Void)?
 
     var isEditing: Bool { existingItem != nil }
     var navigationTitle: String { isEditing ? "Edit Item" : "Add Item" }

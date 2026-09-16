@@ -26,6 +26,11 @@ final class AppCoordinator: NSObject {
     private var itemsCoordinator: ItemsCoordinator?
     private var notificationsCoordinator: NotificationsCoordinator?
     private var profileCoordinator: ProfileCoordinator?
+    /// Retained only while the Add Item modal is on screen — released via
+    /// `onFinished` once it dismisses. Without this the coordinator
+    /// deallocates before the user can ever tap Save (see
+    /// `AddItemCoordinator.onFinished`).
+    private var addItemCoordinator: AddItemCoordinator?
 
     /// Held so `presentAddItem()` can present over it from any call site
     /// (the tab intercept below, or Home's/Items' "Add an item" buttons),
@@ -144,10 +149,13 @@ final class AppCoordinator: NSObject {
     /// presented.
     private func presentAddItem() {
         guard let tabBarController else { return }
-        AddItemCoordinator(
+        let coordinator = AddItemCoordinator(
             presentingViewController: tabBarController,
             itemRepository: itemRepository, notificationService: notificationService
-        ).start()
+        )
+        coordinator.onFinished = { [weak self] in self?.addItemCoordinator = nil }
+        addItemCoordinator = coordinator
+        coordinator.start()
     }
 
     private func signOut() {

@@ -316,7 +316,7 @@ final class ItemEditorViewController: UIViewController {
     }
 
     @objc private func cancelTapped() {
-        dismiss(animated: true)
+        viewModel.onCancel?()
     }
 
     @objc private func formValuesChanged() {

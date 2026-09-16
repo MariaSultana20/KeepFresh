@@ -15,6 +15,11 @@ final class ItemDetailsViewController: UIViewController {
     private let itemRepository: ItemRepository
     private let notificationService: NotificationServiceProtocol
     private let feedbackGenerator = UINotificationFeedbackGenerator()
+    /// Retained only while the Edit modal is on screen — released via
+    /// `onFinished` once it dismisses. Without this the coordinator
+    /// deallocates before the user can ever tap Save (see
+    /// `AddItemCoordinator.onFinished`).
+    private var editCoordinator: AddItemCoordinator?
 
     // MARK: Views
 
@@ -224,13 +229,16 @@ final class ItemDetailsViewController: UIViewController {
     // MARK: Actions
 
     @objc private func editTapped() {
-        AddItemCoordinator(
+        let coordinator = AddItemCoordinator(
             presentingViewController: self, itemRepository: itemRepository,
             notificationService: notificationService, existingItem: item
         ) { [weak self] updatedItem in
             self?.item = updatedItem
             self?.refreshDisplayedFields()
-        }.start()
+        }
+        coordinator.onFinished = { [weak self] in self?.editCoordinator = nil }
+        editCoordinator = coordinator
+        coordinator.start()
     }
 
     @objc private func deleteTapped() {

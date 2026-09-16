@@ -18,12 +18,21 @@ final class AddItemCoordinator {
     private let itemRepository: ItemRepository
     private let notificationService: NotificationServiceProtocol
     private let existingItem: Item?
-    /// Called after a successful save, in addition to (not instead of) the
-    /// dismissal below. Item Details passes this so it can update its own
-    /// displayed fields without a separate re-fetch; every other call site
-    /// (Home/Items' "Add an item" buttons, the Add Item tab) leaves it nil
-    /// since a dismiss-and-refresh-on-viewWillAppear is all they need.
+    /// Called after a successful save, once the modal has finished
+    /// dismissing. Item Details passes this so it can update its own
+    /// displayed fields without a separate re-fetch; AppCoordinator passes
+    /// this to push the new item's Details page (App Store/Music-style
+    /// "add it, then land on the thing you just added").
     private let onSaved: ((Item) -> Void)?
+
+    /// Called once the modal has fully dismissed, whether by Save or
+    /// Cancel — after `onSaved` above, if that also fired. Owners
+    /// (AppCoordinator, ItemDetailsViewController) MUST set this and use
+    /// it to release their strong reference to this coordinator: nothing
+    /// else keeps it alive, and without a strong reference the coordinator
+    /// is deallocated the instant `start()` returns, silently breaking
+    /// both Save and Cancel — see the commit that added this comment.
+    var onFinished: (() -> Void)?
 
     init(
         presentingViewController: UIViewController,
@@ -44,11 +53,25 @@ final class AddItemCoordinator {
             itemRepository: itemRepository, notificationService: notificationService, existingItem: existingItem
         )
         viewModel.onSaved = { [weak self] item in
-            self?.presentingViewController?.dismiss(animated: true)
-            self?.onSaved?(item)
+            self?.finish { self?.onSaved?(item) }
+        }
+        viewModel.onCancel = { [weak self] in
+            self?.finish()
         }
         let editorViewController = ItemEditorViewController(viewModel: viewModel)
         let navigationController = UINavigationController(rootViewController: editorViewController)
         presentingViewController?.present(navigationController, animated: true)
+    }
+
+    /// Single exit path for both Save and Cancel. Dismisses first, runs
+    /// `completion` (e.g. the saved-item callback) only once the dismiss
+    /// animation has actually finished — never racing a push/pop from that
+    /// callback against the modal's own transition — then tells the owner
+    /// this coordinator is done so it can release its strong reference.
+    private func finish(completion: (() -> Void)? = nil) {
+        presentingViewController?.dismiss(animated: true) { [weak self] in
+            completion?()
+            self?.onFinished?()
+        }
     }
 }
