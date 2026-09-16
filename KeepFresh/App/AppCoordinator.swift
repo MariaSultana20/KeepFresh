@@ -175,9 +175,30 @@ final class AppCoordinator: NSObject {
 
     private func signOut() {
         Task {
-            try? await authService.signOut()
-            showAuthFlow()
+            do {
+                try await authService.signOut()
+                showAuthFlow()
+            } catch {
+                presentSignOutError(error)
+            }
         }
+    }
+
+    /// A failed sign-out leaves the signed-in UI on screen rather than
+    /// navigating to the auth flow as if it had succeeded — against
+    /// `MockAuthService` this path was unreachable (`signOut()` never
+    /// threw), but a real backend can genuinely fail here, and silently
+    /// treating that as success would leave the user believing they're
+    /// signed out while the app is still in a signed-in state.
+    private func presentSignOutError(_ error: Error) {
+        let message = (error as? AuthError)?.errorDescription ?? error.localizedDescription
+        let alert = UIAlertController(
+            title: "Couldn't Sign Out",
+            message: message,
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        window.rootViewController?.present(alert, animated: true)
     }
 }
 
