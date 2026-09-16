@@ -39,6 +39,10 @@ enum AppTheme {
         static let buttonHeight: CGFloat = 52
         static let screenMargin: CGFloat = 20
         static let stackSpacing: CGFloat = 16
+        /// Horizontal/vertical padding for a filled "chip"/"pill" label —
+        /// see `InsetLabel`. Centralized here rather than restated at each
+        /// call site, same as every other spacing value in this enum.
+        static let chipTextInsets = UIEdgeInsets(top: 4, left: 10, bottom: 4, right: 10)
     }
 
     enum Font {

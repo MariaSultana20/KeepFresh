@@ -37,13 +37,14 @@ final class ItemDetailsViewController: UIViewController {
         return imageView
     }()
 
-    private let statusBadge: UILabel = {
-        let label = UILabel()
+    private let statusBadge: InsetLabel = {
+        let label = InsetLabel()
         label.font = .systemFont(ofSize: 12, weight: .semibold)
         label.textColor = .white
         label.textAlignment = .center
         label.layer.cornerRadius = 8
         label.layer.masksToBounds = true
+        label.textInsets = AppTheme.Metrics.chipTextInsets
         return label
     }()
 
@@ -185,7 +186,8 @@ final class ItemDetailsViewController: UIViewController {
         iconImageView.image = UIImage(systemName: CategoryIcon.symbolName(for: item.category))
 
         let status = item.status()
-        statusBadge.text = "  \(status.label)  "
+        statusBadge.text = status.label
+        statusBadge.accessibilityLabel = status.label
         statusBadge.backgroundColor = status.color
 
         rowsStack.arrangedSubviews.forEach { $0.removeFromSuperview() }

@@ -55,13 +55,14 @@ final class ItemRowView: UIControl {
         return label
     }()
 
-    private let statusLabel: UILabel = {
-        let label = UILabel()
+    private let statusLabel: InsetLabel = {
+        let label = InsetLabel()
         label.font = .systemFont(ofSize: 12, weight: .semibold)
         label.textColor = .white
         label.textAlignment = .center
         label.layer.cornerRadius = 8
         label.layer.masksToBounds = true
+        label.textInsets = AppTheme.Metrics.chipTextInsets
         return label
     }()
 
@@ -101,7 +102,7 @@ final class ItemRowView: UIControl {
         detailLabel.text = "\(item.category) · \(quantityText) \(item.unit.displayName) · \(expiryText)"
 
         let status = item.status()
-        statusLabel.text = "  \(status.label)  "
+        statusLabel.text = status.label
         statusLabel.backgroundColor = status.color
         statusLabel.accessibilityLabel = status.label
 
