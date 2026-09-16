@@ -119,7 +119,6 @@ final class ItemsViewController: UIViewController {
         super.viewDidLoad()
         title = "Items"
         view.backgroundColor = AppTheme.Color.background
-        navigationItem.largeTitleDisplayMode = .always
         navigationItem.searchController = searchController
         navigationItem.hidesSearchBarWhenScrolling = true
         navigationItem.rightBarButtonItem = filterBarButtonItem
