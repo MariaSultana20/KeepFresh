@@ -128,7 +128,24 @@ final class ItemsViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        // UIKit's hidesSearchBarWhenScrolling tracking is only reliable
+        // alongside prefersLargeTitles (a compact title was the deliberate
+        // choice for this screen, not a large one) - left as-is, the
+        // search bar can come back from a push/pop (e.g. Item Details)
+        // still in whatever collapsed/hidden state it had when this
+        // screen was last visible, instead of fully shown. Disabling the
+        // flag here forces the search bar back to its full, visible
+        // height on every appearance; re-enabling it in viewDidAppear (
+        // below) restores hide-on-scroll for the rest of this visit. This
+        // reset-on-appear pattern is the standard workaround for this
+        // long-standing UIKit issue.
+        navigationItem.hidesSearchBarWhenScrolling = false
         Task { await refresh() }
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        navigationItem.hidesSearchBarWhenScrolling = true
     }
 
     private func layout() {
