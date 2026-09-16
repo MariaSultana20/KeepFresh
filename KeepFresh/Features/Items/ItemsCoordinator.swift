@@ -27,6 +27,13 @@ final class ItemsCoordinator {
         navigationController.tabBarItem = UITabBarItem(
             title: "Items", image: UIImage(systemName: "list.bullet"), tag: 1
         )
+        // UISearchController's hidesSearchBarWhenScrolling relies on the
+        // large-title collapse mechanism to track the search bar's
+        // position; without prefersLargeTitles, that tracking is
+        // undefined and the search bar can fail to reappear after a
+        // push/pop (e.g. returning from Item Details) — see the commit
+        // that added this comment for the bug report.
+        navigationController.navigationBar.prefersLargeTitles = true
         let itemsViewController = ItemsViewController(itemRepository: itemRepository)
         itemsViewController.onAddItemTapped = { [weak self] in self?.onAddItemTapped?() }
         itemsViewController.onItemSelected = { [weak self] item in self?.showItemDetails(for: item) }
