@@ -152,10 +152,25 @@ final class AppCoordinator: NSObject {
         let coordinator = AddItemCoordinator(
             presentingViewController: tabBarController,
             itemRepository: itemRepository, notificationService: notificationService
-        )
+        ) { [weak self] item in
+            self?.showItemDetails(for: item)
+        }
         coordinator.onFinished = { [weak self] in self?.addItemCoordinator = nil }
         addItemCoordinator = coordinator
         coordinator.start()
+    }
+
+    /// Pushes the newly added item's Details page onto whichever tab was
+    /// active when Add Item was tapped, once the modal has finished
+    /// dismissing — the App Store/Music "add it, then land on the thing
+    /// you just added" pattern, matching Home's/Items' own row-tap
+    /// navigation to the same screen.
+    private func showItemDetails(for item: Item) {
+        guard let navigationController = tabBarController?.selectedViewController as? UINavigationController else { return }
+        let detailsViewController = ItemDetailsViewController(
+            item: item, itemRepository: itemRepository, notificationService: notificationService
+        )
+        navigationController.pushViewController(detailsViewController, animated: true)
     }
 
     private func signOut() {
