@@ -1,25 +1,96 @@
-# KeepFresh (iOS)
+# KeepFresh
 
-Expiry tracker app. UIKit, programmatic UI, MVVM-C. See the "KeepFresh — Confirmed Decisions & Commit-by-Commit Build Plan" doc in the KeepFresh Claude project for the full plan and the reasoning behind the current architecture choices.
+**An iOS app that tracks the shelf life of packaged products and reminds you before they expire.**
 
-## Current state
+Built end-to-end in Swift/UIKit with a real Firebase authentication backend, local-first persistence via SwiftData, and scheduled local notifications — architected around MVVM-C for testability and a clean separation between UI, business logic, and data.
 
-Through build-plan commit 5 (five-tab shell): Sign In / Create Account screens, then a five-tab `UITabBarController` shell (Home, Items, Add Item, Notifications, Profile). Home, Items, and Notifications each show a real empty state; Add Item's tab is intercepted and presents a modal placeholder instead of becoming the active tab; Profile shows the signed-in user's info and Sign Out.
+![Platform](https://img.shields.io/badge/platform-iOS%2017%2B-lightgrey)
+![Swift](https://img.shields.io/badge/Swift-5.9-orange)
+![UI](https://img.shields.io/badge/UI-UIKit%20(programmatic)-blue)
+![Architecture](https://img.shields.io/badge/architecture-MVVM--C-informational)
 
-Authentication is backed by `MockAuthService` — there's no real backend wired up yet; any sign-in attempt succeeds after a short simulated delay so the rest of the app is testable end to end. Real auth (Firebase or equivalent) replaces it behind `AuthServiceProtocol` in a later commit.
+---
 
-Persistence is real but not yet consumed by any screen: `Item`/`ExpiryStatus`/`ExpiryStatusCalculator` are modeled and unit-tested, and both a SwiftData-backed `ItemRepository` (the app's actual store, built from `AppDelegate`'s `ModelContainer`) and an in-memory fake (for tests/previews) exist behind the same protocol. Wiring Home's summary cards and a real Items list against it is build-plan commit 6.
+## Overview
 
-Run `xcodebuild test` (or Cmd+U in Xcode) against the `KeepFreshTests` target to run the existing unit tests — this environment has no Xcode/xcodebuild available, so every commit here has only been validated by hand (structural `project.pbxproj` checks, brace-balance checks, and manual read-through); a real build in Xcode is still the first thing to do after pulling these commits.
+KeepFresh solves a simple, everyday problem: packaged food and household products get pushed to the back of a cupboard and forgotten until they've expired. The app lets a user log what they own — name, category, quantity, purchase date, expiry date — and get a local notification before each item goes bad, with a traffic-light status system (Good / Expiring Soon / Expired) driving the UI throughout.
 
-## First-time setup in Xcode
+The project is built as a portfolio-quality reference for iOS engineering practices: no storyboards, no third-party UI kits, a protocol-first service layer that swaps real implementations in behind mocks, and a growing suite of unit tests around the pieces that carry real logic (expiry-status math, repository contracts, form validation).
 
-1. Open `KeepFresh.xcodeproj`.
-2. Signing & Capabilities → select your own Team (Automatic signing is already configured; bundle ID is `com.maria.keepfresh`).
-3. In your Apple Developer account, enable the **Sign in with Apple** capability for this App ID — the project already requests it via `KeepFresh.entitlements`, but Xcode can't provision it until it's enabled on the App ID itself.
-4. Build and run on a simulator or device running iOS 17+.
+## Features
 
-## Scope notes
+- **Authentication** — Sign in with Apple, Google Sign-In, and email/password, all backed by Firebase Auth (`AuthServiceProtocol`, with `FirebaseAuthService` as the production conformer and `MockAuthService` kept for previews/tests). Sessions persist across launches; signing out requires confirmation.
+- **Item tracking** — Add and edit items with name, category, quantity + unit (a closed set, not free text), purchase date, expiry date, an optional note, and a configurable reminder lead time.
+- **Home dashboard** — A greeting header, three summary cards (All Items / Expired / Expiring Soon), and a live "Expiring Soon" preview of the five soonest-expiring items.
+- **Items list** — Full inventory with search, a status-filter segmented control, and a category filter + sort menu.
+- **Item details** — Full detail view per item, with edit and delete (delete also cancels that item's scheduled notification).
+- **Local notifications** — Expiry reminders scheduled via `UNUserNotificationCenter`, with deterministic identifiers so rescheduling never leaks duplicates; the Notifications tab lists everything currently scheduled.
+- **Profile** — Edit display name, sign out (with confirmation).
+- **Dark Mode** — Full support via dynamic system colors, no hardcoded palette.
 
-- v1 is local-only (SwiftData) — no Firestore/Storage until there's an actual need for multi-device sync.
-- No third-party dependencies yet (no CocoaPods/SPM packages) — kept out until the commit that actually needs Google Sign-In's SDK.
+## Tech stack
+
+| Layer | Choice |
+|---|---|
+| Language | Swift 5.9 |
+| UI | UIKit, 100% programmatic (no Storyboards/XIBs) |
+| Architecture | MVVM-C (Model–View–ViewModel–Coordinator — ViewModels hold presentation logic and are unit-testable in isolation; Coordinators own navigation so view controllers don't push/present each other directly) |
+| Persistence | SwiftData (local-only for v1) |
+| Auth | Firebase Auth + GoogleSignIn-iOS SDK (Apple / Google / email-password) |
+| Notifications | `UserNotifications` (local, on-device scheduling) |
+| Testing | XCTest — 30+ unit tests across expiry-status logic, the repository contract, and item-editor validation |
+| Minimum target | iOS 17.0 |
+
+## Architecture notes
+
+Every cross-cutting concern is defined as a protocol and injected, not reached for as a singleton:
+
+- `AuthServiceProtocol` → `FirebaseAuthService` (production) / `MockAuthService` (tests, previews)
+- `ItemRepository` → `SwiftDataItemRepository` (production) / `InMemoryItemRepository` (tests)
+- `NotificationServiceProtocol` → `LocalNotificationService` (production) / `InMemoryNotificationService` (tests)
+
+This keeps the ViewModel and view-controller layers free of Firebase/SwiftData imports, and means the whole app can run — and be tested — against fakes with zero network or disk dependency.
+
+## Project structure
+
+```
+KeepFresh/
+  App/          AppDelegate, SceneDelegate, AppCoordinator, AppTheme
+  Features/     Auth, Home, Items, AddItem, ItemEditor, ItemDetails, Notifications, Profile
+  Models/       Item, ExpiryStatus, ExpiryStatusCalculator, CategoryIcon
+  Services/     Auth, persistence, and notification protocols + implementations
+  Shared/       Reusable views (PrimaryButton, ItemRowView, EmptyStateView, ...)
+  Resources/    Assets.xcassets
+KeepFreshTests/ Unit tests
+```
+
+## Getting started
+
+1. Clone the repo and open `KeepFresh.xcodeproj` in Xcode 15+.
+2. **Signing** — In *Signing & Capabilities*, select your own development team (automatic signing is already configured; bundle ID is `com.maria.keepfresh`).
+3. **Sign in with Apple** — Enable the *Sign in with Apple* capability on your App ID in the Apple Developer portal; the entitlement is already requested in `KeepFresh.entitlements`, but Xcode can't provision it until it's enabled on the App ID.
+4. **Firebase** — Add your own `GoogleService-Info.plist` to the project root (this file is gitignored on purpose — never commit real Firebase credentials).
+5. Build and run on an iOS 17+ simulator or device.
+
+## Running tests
+
+```
+Cmd+U in Xcode
+```
+or
+```
+xcodebuild test -project KeepFresh.xcodeproj -scheme KeepFresh -destination 'platform=iOS Simulator,name=iPhone 15'
+```
+
+## Roadmap
+
+- Account deletion (local data + Firebase user)
+- Persisted notification history (read/unread, clear history)
+- Profile display-name propagation to Home's greeting (needs an app-wide session observable)
+- Accessibility and Dark Mode audit
+- Optional Firestore/Storage sync for multi-device support
+- TestFlight release
+
+## Author
+
+Built by [Maria Sultana](https://github.com/MariaSultana20).
