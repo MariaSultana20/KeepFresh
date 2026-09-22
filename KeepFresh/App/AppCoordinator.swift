@@ -47,7 +47,7 @@ final class AppCoordinator: NSObject {
     init(
         window: UIWindow,
         itemRepository: ItemRepository,
-        authService: AuthServiceProtocol = MockAuthService(),
+        authService: AuthServiceProtocol = FirebaseAuthService(),
         notificationService: NotificationServiceProtocol = LocalNotificationService()
     ) {
         self.window = window

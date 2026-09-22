@@ -1,3 +1,4 @@
+import GoogleSignIn
 import SwiftData
 import UIKit
 
@@ -20,8 +21,21 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         self.window = window
 
         let itemRepository = SwiftDataItemRepository(modelContext: appDelegate.modelContainer.mainContext)
-        let coordinator = AppCoordinator(window: window, itemRepository: itemRepository)
+        let coordinator = AppCoordinator(
+            window: window,
+            itemRepository: itemRepository,
+            authService: FirebaseAuthService()
+        )
         appCoordinator = coordinator
         coordinator.start()
+    }
+
+    /// Completes Google Sign-In's OAuth redirect back into the app.
+    /// `GIDSignIn` inspects the URL itself and returns `false` for
+    /// anything it doesn't recognize, so it's safe to call unconditionally
+    /// here rather than trying to pre-filter by scheme.
+    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        guard let url = URLContexts.first?.url else { return }
+        GIDSignIn.sharedInstance.handle(url)
     }
 }

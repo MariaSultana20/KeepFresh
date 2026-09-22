@@ -1,5 +1,6 @@
-import UIKit
+import FirebaseCore
 import SwiftData
+import UIKit
 
 @main
 final class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -29,10 +30,12 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         // should surface at launch, not deep in some later user flow.
         _ = modelContainer
 
-        // TODO: configure Firebase here (`FirebaseApp.configure()`) once
-        // FirebaseAuthService replaces MockAuthService — see the build plan's
-        // "wire up authentication" commit. Nothing to configure yet since v1
-        // starts local-only (SwiftData) with no Firestore/Storage.
+        // Reads GoogleService-Info.plist. Must run before any
+        // FirebaseAuthService call — SceneDelegate constructs AppCoordinator
+        // (and its FirebaseAuthService) synchronously right after this
+        // method returns, so "configure before first use" is satisfied by
+        // ordering alone; no extra guard needed at the call site.
+        FirebaseApp.configure()
         return true
     }
 

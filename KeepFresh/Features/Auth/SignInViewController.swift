@@ -347,18 +347,19 @@ final class SignInViewController: UIViewController {
     }
 
     @objc private func appleTapped() {
-        // TODO: once FirebaseAuthService lands, this should drive a real
-        // ASAuthorizationController request and hand its credential to
-        // Firebase Auth. For now it exercises the same loading/error path
-        // through the mock service.
+        // Routes through AuthServiceProtocol, so this now drives
+        // FirebaseAuthService's real ASAuthorizationController request —
+        // no change needed here for that swap.
         feedbackGenerator.prepare()
         viewModel.signInWithApple()
     }
 
     @objc private func googleTapped() {
-        // TODO: swap in the official "G" branding asset and the real
-        // Google Sign-In SDK flow per Google's brand guidelines when this
-        // is wired to FirebaseAuthService.
+        // Routes through AuthServiceProtocol, so this now drives the real
+        // GoogleSignIn SDK flow via FirebaseAuthService.
+        // TODO: swap in the official "G" branding asset per Google's
+        // brand guidelines — SocialSignInButton's current icon is still
+        // a placeholder; unrelated to the auth wiring itself.
         feedbackGenerator.prepare()
         viewModel.signInWithGoogle()
     }
