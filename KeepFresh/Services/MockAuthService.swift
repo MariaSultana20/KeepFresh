@@ -50,5 +50,5 @@ final class MockAuthService: AuthServiceProtocol {
 
     // Nothing here persists past the process lifetime — see the type's
     // doc comment — so there's never a session to restore at launch.
-    var currentUser: AuthUser? { nil }
+    func restoreSession() async -> AuthUser? { nil }
 }

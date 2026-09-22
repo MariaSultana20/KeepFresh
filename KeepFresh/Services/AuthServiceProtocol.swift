@@ -58,13 +58,19 @@ protocol AuthServiceProtocol {
     /// shouldn't need one either to answer "update this user's name."
     func updateDisplayName(_ displayName: String, for user: AuthUser) async throws -> AuthUser
 
-    /// The signed-in user from the current persisted session, if any.
-    /// Deliberately synchronous rather than `async throws` like everything
-    /// else here: a real backend (Firebase included) caches this locally,
-    /// so it's available immediately at launch with no network round trip
-    /// — `AppCoordinator.start()` reads it to route straight to the
-    /// signed-in interface instead of always landing on Sign In.
-    /// `MockAuthService` returns `nil` — it never persisted anything past
-    /// the process lifetime in the first place.
-    var currentUser: AuthUser? { get }
+    /// Waits for the locally-persisted session (if any — Apple, Google,
+    /// and email/password all end up as the same kind of session once
+    /// signed in) to finish restoring, then returns it.
+    ///
+    /// This is deliberately *not* a synchronous property reading
+    /// something like Firebase's own `Auth.auth().currentUser`. That
+    /// read races Firebase's own async load of the cached session from
+    /// Keychain — called too early (e.g. right after `FirebaseApp.
+    /// configure()` at launch) it can return nil even though a session
+    /// exists, which is exactly the "sign-in doesn't survive closing the
+    /// app" bug this method exists to avoid. `AppCoordinator.start()`
+    /// awaits this before deciding whether to show the signed-in
+    /// interface or Sign In. `MockAuthService` returns `nil` immediately
+    /// — nothing there ever persisted past the process lifetime anyway.
+    func restoreSession() async -> AuthUser?
 }

@@ -144,11 +144,24 @@ final class FirebaseAuthService: NSObject, AuthServiceProtocol {
         }
     }
 
-    // Firebase caches the last signed-in user locally (Keychain-backed),
-    // synchronously available right after FirebaseApp.configure() — no
-    // network round trip needed to answer "is anyone signed in".
-    var currentUser: AuthUser? {
-        Auth.auth().currentUser.map(Self.authUser(from:))
+    // Reading Auth.auth().currentUser synchronously right after launch
+    // races Firebase's own async load of the cached session from
+    // Keychain and can return nil even though one exists.
+    // addStateDidChangeListener's first callback is guaranteed to fire
+    // only once that restore has actually completed, so this awaits
+    // exactly that instead — the reliable way to ask "is anyone signed
+    // in" at launch, covering Apple, Google, and email/password alike
+    // since all three end up as the same Firebase session.
+    func restoreSession() async -> AuthUser? {
+        await withCheckedContinuation { continuation in
+            var handle: AuthStateDidChangeListenerHandle?
+            handle = Auth.auth().addStateDidChangeListener { _, user in
+                if let handle {
+                    Auth.auth().removeStateDidChangeListener(handle)
+                }
+                continuation.resume(returning: user.map(Self.authUser(from:)))
+            }
+        }
     }
 
     // MARK: Apple Sign-In (delegate bridging)

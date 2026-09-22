@@ -58,17 +58,32 @@ final class AppCoordinator: NSObject {
     }
 
     func start() {
-        // A persisted session (checked synchronously — see
-        // AuthServiceProtocol.currentUser) skips Sign In entirely rather
-        // than making the user log in again every launch. Routed with no
-        // animation since this is the app's first frame, not a mid-app
-        // transition.
-        if let user = authService.currentUser {
-            showSignedInInterface(for: user, animated: false)
-        } else {
-            showAuthFlow()
-        }
+        // A persisted session skips Sign In entirely rather than making
+        // the user log in again every launch — see
+        // AuthServiceProtocol.restoreSession() for why this has to be
+        // awaited rather than read synchronously. The placeholder covers
+        // the (normally near-instant, no network involved) gap while
+        // that's in flight, so there's no flash of Sign In before
+        // snapping to Home when a session does exist.
+        window.rootViewController = launchPlaceholder()
         window.makeKeyAndVisible()
+        Task {
+            if let user = await authService.restoreSession() {
+                showSignedInInterface(for: user, animated: false)
+            } else {
+                showAuthFlow()
+            }
+        }
+    }
+
+    /// Shown only for the brief window `restoreSession()` takes to check
+    /// for a locally-cached session. Matches the plain background of
+    /// `UILaunchScreen` in Info.plist so it reads as a continuation of
+    /// the system launch screen rather than a distinct extra screen.
+    private func launchPlaceholder() -> UIViewController {
+        let viewController = UIViewController()
+        viewController.view.backgroundColor = AppTheme.Color.background
+        return viewController
     }
 
     private func showAuthFlow() {
