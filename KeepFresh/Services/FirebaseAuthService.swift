@@ -144,6 +144,13 @@ final class FirebaseAuthService: NSObject, AuthServiceProtocol {
         }
     }
 
+    // Firebase caches the last signed-in user locally (Keychain-backed),
+    // synchronously available right after FirebaseApp.configure() — no
+    // network round trip needed to answer "is anyone signed in".
+    var currentUser: AuthUser? {
+        Auth.auth().currentUser.map(Self.authUser(from:))
+    }
+
     // MARK: Apple Sign-In (delegate bridging)
 
     private var appleContinuation: CheckedContinuation<ASAuthorizationAppleIDCredential, Error>?

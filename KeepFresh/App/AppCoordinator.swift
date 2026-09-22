@@ -58,7 +58,16 @@ final class AppCoordinator: NSObject {
     }
 
     func start() {
-        showAuthFlow()
+        // A persisted session (checked synchronously — see
+        // AuthServiceProtocol.currentUser) skips Sign In entirely rather
+        // than making the user log in again every launch. Routed with no
+        // animation since this is the app's first frame, not a mid-app
+        // transition.
+        if let user = authService.currentUser {
+            showSignedInInterface(for: user, animated: false)
+        } else {
+            showAuthFlow()
+        }
         window.makeKeyAndVisible()
     }
 
@@ -85,7 +94,7 @@ final class AppCoordinator: NSObject {
         window.rootViewController = navigationController
     }
 
-    private func showSignedInInterface(for user: AuthUser) {
+    private func showSignedInInterface(for user: AuthUser, animated: Bool = true) {
         authCoordinator = nil
 
         let homeNavigationController = UINavigationController()
@@ -140,7 +149,7 @@ final class AppCoordinator: NSObject {
         tabBarController.delegate = self
         self.tabBarController = tabBarController
 
-        window.setRootViewController(tabBarController, animated: true)
+        window.setRootViewController(tabBarController, animated: animated)
     }
 
     /// Presents the Add Item modal over the current tab bar shell. Shared by

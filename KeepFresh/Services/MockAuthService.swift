@@ -47,4 +47,8 @@ final class MockAuthService: AuthServiceProtocol {
         try await Task.sleep(nanoseconds: simulatedLatencyNanoseconds)
         return AuthUser(id: user.id, email: user.email, displayName: displayName)
     }
+
+    // Nothing here persists past the process lifetime — see the type's
+    // doc comment — so there's never a session to restore at launch.
+    var currentUser: AuthUser? { nil }
 }

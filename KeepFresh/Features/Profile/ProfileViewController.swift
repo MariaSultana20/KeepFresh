@@ -127,7 +127,23 @@ final class ProfileViewController: UIViewController {
     }
 
     @objc private func signOutTapped() {
-        onSignOutTapped?()
+        // Sessions now persist across launches (real auth, commit 10), so
+        // a mistaken tap here costs real re-authentication — an Apple/
+        // Google flow or retyping a password — rather than the mock's
+        // free instant re-login. Confirm before forwarding the intent,
+        // matching Settings.app's own "Sign Out" confirmation.
+        let alert = UIAlertController(
+            title: "Sign Out?",
+            message: "You'll need to sign in again to use KeepFresh.",
+            preferredStyle: .actionSheet
+        )
+        alert.addAction(UIAlertAction(title: "Sign Out", style: .destructive) { [weak self] _ in
+            self?.onSignOutTapped?()
+        })
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        // actionSheet needs a popover anchor on iPad; harmless no-op on iPhone.
+        alert.popoverPresentationController?.sourceView = signOutButton
+        present(alert, animated: true)
     }
 
     @objc private func editProfileTapped() {

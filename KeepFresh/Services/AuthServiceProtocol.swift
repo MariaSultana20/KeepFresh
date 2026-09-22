@@ -57,4 +57,14 @@ protocol AuthServiceProtocol {
     /// backing store to look one up in, and a real implementation
     /// shouldn't need one either to answer "update this user's name."
     func updateDisplayName(_ displayName: String, for user: AuthUser) async throws -> AuthUser
+
+    /// The signed-in user from the current persisted session, if any.
+    /// Deliberately synchronous rather than `async throws` like everything
+    /// else here: a real backend (Firebase included) caches this locally,
+    /// so it's available immediately at launch with no network round trip
+    /// — `AppCoordinator.start()` reads it to route straight to the
+    /// signed-in interface instead of always landing on Sign In.
+    /// `MockAuthService` returns `nil` — it never persisted anything past
+    /// the process lifetime in the first place.
+    var currentUser: AuthUser? { get }
 }
