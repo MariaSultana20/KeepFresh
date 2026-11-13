@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- The app does not track users across apps or websites owned by other companies. -->
+	<key>NSPrivacyTracking</key>
+	<false/>
+
+	<!-- No tracking domains (no analytics, no ad networks, no cross-app tracking). -->
+	<key>NSPrivacyTrackingDomains</key>
+	<array/>
+
+	<!--
+	    Required-reason API types used by the app itself (not by SDKs —
+	    Firebase/Google declare their own manifests in their SPM packages).
+
+	    NSUserDefaults (CA92.1): UserDefaults is accessed to store app-local
+	    preferences (notification settings, onboarding state). The data is
+	    used solely to operate the app on the user's device and is never
+	    sent off-device by the app itself.
+	-->
+	<key>NSPrivacyAccessedAPITypes</key>
+	<array>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<!-- CA92.1: Access info from the same app that wrote it. -->
+				<string>CA92.1</string>
+			</array>
+		</dict>
+	</array>
+
+	<!--
+	    Data collected by the app and linked to the user's identity.
+	    Firebase Auth stores email address and user ID; both are linked to
+	    the user's account and used exclusively to provide authentication —
+	    not for tracking or advertising.
+	-->
+	<key>NSPrivacyCollectedDataTypes</key>
+	<array>
+		<dict>
+			<key>NSPrivacyCollectedDataType</key>
+			<string>NSPrivacyCollectedDataTypeEmailAddress</string>
+			<key>NSPrivacyCollectedDataTypeLinked</key>
+			<true/>
+			<key>NSPrivacyCollectedDataTypeTracking</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypePurposes</key>
+			<array>
+				<!-- Authentication and account management only. -->
+				<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+			</array>
+		</dict>
+		<dict>
+			<key>NSPrivacyCollectedDataType</key>
+			<string>NSPrivacyCollectedDataTypeUserID</string>
+			<key>NSPrivacyCollectedDataTypeLinked</key>
+			<true/>
+			<key>NSPrivacyCollectedDataTypeTracking</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypePurposes</key>
+			<array>
+				<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>
