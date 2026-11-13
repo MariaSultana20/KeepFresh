@@ -21,6 +21,8 @@ final class ItemEditorViewController: UIViewController {
         "Frozen", "Cosmetics", "Medicine", "Household", "Other",
     ]
     private static let reminderOptions = [0, 1, 3, 7, 14, 30]
+    /// Index of the Custom segment (always one past the last preset).
+    private static var customSegmentIndex: Int { reminderOptions.count }
 
     private let viewModel: ItemEditorViewModel
     private var cancellables = Set<AnyCancellable>()
@@ -28,6 +30,20 @@ final class ItemEditorViewController: UIViewController {
     private var keyboardHelper: KeyboardAvoidingScrollHelper?
 
     private var selectedUnit: Item.Unit
+    /// Days value stored when the Custom segment is active.
+    private var customReminderDays = 2
+    /// The last-selected preset index, so Cancel on the custom alert reverts gracefully.
+    private var previousSegmentIndex = 3  // 7d default
+
+    /// Shown beneath the segmented control only while Custom is active,
+    /// so the user always sees the exact custom value in plain language.
+    private let customValueLabel: UILabel = {
+        let label = UILabel()
+        label.font = AppTheme.Font.caption()
+        label.textColor = AppTheme.Color.primary
+        label.isHidden = true
+        return label
+    }()
 
     // MARK: Views
 
@@ -106,9 +122,17 @@ final class ItemEditorViewController: UIViewController {
         return picker
     }()
 
-    private lazy var reminderControl = UISegmentedControl(
-        items: ItemEditorViewController.reminderOptions.map { $0 == 0 ? "On day" : "\($0)d" }
-    )
+    private lazy var reminderControl: UISegmentedControl = {
+        var titles = ItemEditorViewController.reminderOptions.map { $0 == 0 ? "On day" : "\($0)d" }
+        titles.append("Custom")
+        let control = UISegmentedControl(items: titles)
+        // 7 segments need a tighter font to avoid crowding on small screens.
+        let small = UIFont.systemFont(ofSize: 11, weight: .regular)
+        let smallBold = UIFont.systemFont(ofSize: 11, weight: .semibold)
+        control.setTitleTextAttributes([.font: small], for: .normal)
+        control.setTitleTextAttributes([.font: smallBold], for: .selected)
+        return control
+    }()
 
     private let noteField: UITextField = {
         let field = UITextField()
@@ -172,8 +196,12 @@ final class ItemEditorViewController: UIViewController {
 
         if let index = ItemEditorViewController.reminderOptions.firstIndex(of: viewModel.initialReminderDaysBefore) {
             reminderControl.selectedSegmentIndex = index
+            previousSegmentIndex = index
         } else {
-            reminderControl.selectedSegmentIndex = ItemEditorViewController.reminderOptions.firstIndex(of: 7) ?? 0
+            // Value is non-standard (e.g. edited from a custom entry) — restore Custom segment.
+            customReminderDays = viewModel.initialReminderDaysBefore
+            reminderControl.selectedSegmentIndex = ItemEditorViewController.customSegmentIndex
+            updateCustomValueLabel()
         }
     }
 
@@ -211,7 +239,7 @@ final class ItemEditorViewController: UIViewController {
         noteStack.axis = .vertical
         noteStack.spacing = 4
 
-        let reminderStack = UIStackView(arrangedSubviews: [makeFieldLabel("Remind Me Before"), reminderControl])
+        let reminderStack = UIStackView(arrangedSubviews: [makeFieldLabel("Remind Me Before"), reminderControl, customValueLabel])
         reminderStack.axis = .vertical
         reminderStack.spacing = 8
 
@@ -279,6 +307,7 @@ final class ItemEditorViewController: UIViewController {
 
     private func bindActions() {
         categoryPickerButton.addTarget(self, action: #selector(categoryPickerTapped), for: .touchUpInside)
+        reminderControl.addTarget(self, action: #selector(reminderSegmentChanged), for: .valueChanged)
         expiryDatePicker.addTarget(self, action: #selector(formValuesChanged), for: .valueChanged)
         [nameField, categoryField, quantityField].forEach {
             $0.addTarget(self, action: #selector(formValuesChanged), for: .editingChanged)
@@ -347,6 +376,10 @@ final class ItemEditorViewController: UIViewController {
         }
 
         feedbackGenerator.prepare()
+        let selectedIndex = reminderControl.selectedSegmentIndex
+        let reminderDays = selectedIndex == ItemEditorViewController.customSegmentIndex
+            ? customReminderDays
+            : ItemEditorViewController.reminderOptions[selectedIndex]
         viewModel.save(
             name: nameField.text ?? "",
             category: categoryField.text ?? "",
@@ -355,7 +388,7 @@ final class ItemEditorViewController: UIViewController {
             purchaseDate: purchaseDatePicker.date,
             expiryDate: expiryDatePicker.date,
             note: noteField.text ?? "",
-            reminderDaysBefore: ItemEditorViewController.reminderOptions[reminderControl.selectedSegmentIndex]
+            reminderDaysBefore: reminderDays
         )
     }
 
@@ -408,6 +441,52 @@ final class ItemEditorViewController: UIViewController {
             categoryField.text = category
         }
         updateSaveButtonEnabled()
+    }
+
+    // MARK: Custom reminder
+
+    @objc private func reminderSegmentChanged() {
+        if reminderControl.selectedSegmentIndex == ItemEditorViewController.customSegmentIndex {
+            presentCustomReminderAlert()
+        } else {
+            previousSegmentIndex = reminderControl.selectedSegmentIndex
+            customValueLabel.isHidden = true
+        }
+    }
+
+    private func presentCustomReminderAlert() {
+        let alert = UIAlertController(
+            title: "Custom Reminder",
+            message: "Days before expiry (0 = on the expiry day)",
+            preferredStyle: .alert
+        )
+        alert.addTextField { [weak self] field in
+            field.keyboardType = .numberPad
+            field.placeholder = "Days"
+            if let self { field.text = "\(self.customReminderDays)" }
+        }
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel) { [weak self] _ in
+            guard let self else { return }
+            reminderControl.selectedSegmentIndex = previousSegmentIndex
+        })
+        alert.addAction(UIAlertAction(title: "Set", style: .default) { [weak self] _ in
+            guard let self else { return }
+            let text = alert.textFields?.first?.text ?? ""
+            guard let days = Int(text), days >= 0 else {
+                reminderControl.selectedSegmentIndex = previousSegmentIndex
+                return
+            }
+            customReminderDays = days
+            updateCustomValueLabel()
+        })
+        present(alert, animated: true)
+    }
+
+    private func updateCustomValueLabel() {
+        customValueLabel.text = customReminderDays == 0
+            ? "On the expiry day"
+            : "\(customReminderDays) day\(customReminderDays == 1 ? "" : "s") before expiry"
+        customValueLabel.isHidden = false
     }
 }
 
