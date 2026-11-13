@@ -9,6 +9,7 @@ final class ProfileCoordinator {
     /// Bubbled up to AppCoordinator, same as before when this lived on
     /// HomeCoordinator.
     var onSignOut: (() -> Void)?
+    var onUserUpdated: ((AuthUser) -> Void)?
 
     private let navigationController: UINavigationController
     private let authService: AuthServiceProtocol
@@ -47,6 +48,7 @@ final class ProfileCoordinator {
             guard let self else { return }
             user = updatedUser
             profileViewController?.update(user: updatedUser)
+            onUserUpdated?(updatedUser)
             navigationController.popViewController(animated: true)
         }
         let editProfileViewController = EditProfileViewController(viewModel: viewModel)

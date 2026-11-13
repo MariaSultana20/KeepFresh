@@ -9,28 +9,35 @@ final class HomeCoordinator {
     var onAddItemTapped: (() -> Void)?
 
     private let navigationController: UINavigationController
-    private let user: AuthUser
     private let itemRepository: ItemRepository
     private let notificationService: NotificationServiceProtocol
+    private weak var homeViewController: HomeViewController?
 
     init(
         navigationController: UINavigationController, user: AuthUser,
         itemRepository: ItemRepository, notificationService: NotificationServiceProtocol
     ) {
         self.navigationController = navigationController
-        self.user = user
         self.itemRepository = itemRepository
         self.notificationService = notificationService
+        self._initialUser = user
     }
+
+    private let _initialUser: AuthUser
 
     func start() {
         navigationController.tabBarItem = UITabBarItem(
             title: "Home", image: UIImage(systemName: "house.fill"), tag: 0
         )
-        let homeViewController = HomeViewController(user: user, itemRepository: itemRepository)
+        let homeViewController = HomeViewController(user: _initialUser, itemRepository: itemRepository)
         homeViewController.onAddItemTapped = { [weak self] in self?.onAddItemTapped?() }
         homeViewController.onItemSelected = { [weak self] item in self?.showItemDetails(for: item) }
+        self.homeViewController = homeViewController
         navigationController.setViewControllers([homeViewController], animated: false)
+    }
+
+    func update(user: AuthUser) {
+        homeViewController?.update(user: user)
     }
 
     private func showItemDetails(for item: Item) {

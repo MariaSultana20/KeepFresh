@@ -149,6 +149,9 @@ final class AppCoordinator: NSObject {
         profileCoordinator.onSignOut = { [weak self] in
             self?.signOut()
         }
+        profileCoordinator.onUserUpdated = { [weak self] updatedUser in
+            self?.homeCoordinator?.update(user: updatedUser)
+        }
         profileCoordinator.start()
         self.profileCoordinator = profileCoordinator
 
@@ -224,6 +227,7 @@ final class AppCoordinator: NSObject {
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         window.rootViewController?.present(alert, animated: true)
     }
+
 }
 
 extension AppCoordinator: UITabBarControllerDelegate {
