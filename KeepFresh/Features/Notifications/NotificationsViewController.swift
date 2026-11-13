@@ -87,13 +87,20 @@ final class NotificationsViewController: UIViewController {
     private func refresh() async {
         let reminders = await notificationService.pendingReminders()
 
-        // Resolve each reminder's item, dropping any whose item no longer
-        // exists (e.g. deleted through some future path that doesn't also
-        // cancel its reminder) rather than crashing or showing a blank row.
+        // Resolve each reminder's item. `nil` means the item was deleted
+        // but its notification wasn't cancelled — skip silently, that's
+        // expected. A thrown error is a genuine read failure — surface it
+        // and bail rather than showing a partial list with no explanation.
         var rows: [(item: Item, fireDate: Date)] = []
         for reminder in reminders {
-            guard let item = try? await itemRepository.item(id: reminder.itemID) else { continue }
-            rows.append((item, reminder.fireDate))
+            do {
+                if let item = try await itemRepository.item(id: reminder.itemID) {
+                    rows.append((item, reminder.fireDate))
+                }
+            } catch {
+                presentFetchError(error)
+                return
+            }
         }
         rows.sort { $0.fireDate < $1.fireDate }
 
@@ -112,6 +119,16 @@ final class NotificationsViewController: UIViewController {
 
     @objc private func rowTapped(_ sender: ItemRowView) {
         onItemSelected?(sender.item)
+    }
+
+    private func presentFetchError(_ error: Error) {
+        let alert = UIAlertController(
+            title: "Couldn't Load Reminders",
+            message: error.localizedDescription,
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
 }
 

@@ -181,12 +181,22 @@ final class ItemsViewController: UIViewController {
 
     @MainActor
     private func refresh() async {
-        // Best-effort: leave the list as it was on a fetch failure rather
-        // than replacing it with a blocking alert every time this tab is
-        // shown.
-        guard let items = try? await itemRepository.fetchAll() else { return }
-        allItems = items
-        render()
+        do {
+            allItems = try await itemRepository.fetchAll()
+            render()
+        } catch {
+            presentFetchError(error)
+        }
+    }
+
+    private func presentFetchError(_ error: Error) {
+        let alert = UIAlertController(
+            title: "Couldn't Load Items",
+            message: error.localizedDescription,
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
 
     /// Rebuilds the visible rows from `allItems` plus the current search

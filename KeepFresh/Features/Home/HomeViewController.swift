@@ -16,13 +16,12 @@ final class HomeViewController: UIViewController {
     var onAddItemTapped: (() -> Void)?
     var onItemSelected: ((Item) -> Void)?
 
-    private let user: AuthUser
+    private var user: AuthUser
     private let itemRepository: ItemRepository
 
     private lazy var greetingLabel: UILabel = {
         let label = UILabel()
-        let name = user.displayName ?? user.email ?? "there"
-        label.text = "Hi, \(name) 👋"
+        label.text = greetingText(for: user)
         label.font = AppTheme.Font.title()
         label.textColor = AppTheme.Color.textPrimary
         return label
@@ -105,12 +104,23 @@ final class HomeViewController: UIViewController {
 
     @MainActor
     private func refresh() async {
-        // Best-effort: on failure, leave whatever was last displayed rather
-        // than blocking this screen with an alert it didn't ask to show —
-        // Items' own list is where a user-facing fetch error would surface.
-        guard let items = try? await itemRepository.fetchAll() else { return }
-        updateSummaryCards(with: items)
-        updateExpiringSoonSection(with: items)
+        do {
+            let items = try await itemRepository.fetchAll()
+            updateSummaryCards(with: items)
+            updateExpiringSoonSection(with: items)
+        } catch {
+            presentFetchError(error)
+        }
+    }
+
+    private func presentFetchError(_ error: Error) {
+        let alert = UIAlertController(
+            title: "Couldn't Load Items",
+            message: error.localizedDescription,
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
 
     private func updateSummaryCards(with items: [Item]) {
@@ -139,6 +149,18 @@ final class HomeViewController: UIViewController {
 
     @objc private func rowTapped(_ sender: ItemRowView) {
         onItemSelected?(sender.item)
+    }
+
+    /// Called by `HomeCoordinator` after a successful Edit Profile save so
+    /// the greeting updates immediately without requiring a re-launch.
+    func update(user: AuthUser) {
+        self.user = user
+        greetingLabel.text = greetingText(for: user)
+    }
+
+    private func greetingText(for user: AuthUser) -> String {
+        let name = user.displayName ?? user.email ?? "there"
+        return "Hi, \(name) 👋"
     }
 }
 
