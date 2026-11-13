@@ -49,6 +49,7 @@ final class SignInViewController: UIViewController {
         label.font = AppTheme.Font.title()
         label.textColor = AppTheme.Color.textPrimary
         label.textAlignment = .center
+        label.adjustsFontForContentSizeCategory = true
         return label
     }()
 
@@ -59,6 +60,7 @@ final class SignInViewController: UIViewController {
         label.textColor = AppTheme.Color.textSecondary
         label.textAlignment = .center
         label.numberOfLines = 0
+        label.adjustsFontForContentSizeCategory = true
         return label
     }()
 
@@ -151,6 +153,16 @@ final class SignInViewController: UIViewController {
         emailField.delegate = self
         passwordField.delegate = self
         updateAppleButtonStyleIfNeeded()
+        setupAccessibilityIdentifiers()
+    }
+
+    private func setupAccessibilityIdentifiers() {
+        emailField.accessibilityIdentifier = "sign-in-email-field"
+        passwordField.accessibilityIdentifier = "sign-in-password-field"
+        signInButton.accessibilityIdentifier = "sign-in-button"
+        googleButton.accessibilityIdentifier = "google-sign-in-button"
+        appleButton.accessibilityIdentifier = "apple-sign-in-button"
+        createAccountButton.accessibilityIdentifier = "create-account-button"
     }
 
     // MARK: Layout
@@ -284,6 +296,7 @@ final class SignInViewController: UIViewController {
         label.textColor = AppTheme.Color.expired
         label.font = AppTheme.Font.caption()
         label.numberOfLines = 0
+        label.adjustsFontForContentSizeCategory = true
         return label
     }
 

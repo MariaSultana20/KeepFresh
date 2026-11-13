@@ -44,6 +44,7 @@ final class ItemRowView: UIControl {
         label.font = AppTheme.Font.headline()
         label.textColor = AppTheme.Color.textPrimary
         label.numberOfLines = 1
+        label.adjustsFontForContentSizeCategory = true
         return label
     }()
 
@@ -52,12 +53,14 @@ final class ItemRowView: UIControl {
         label.font = AppTheme.Font.caption()
         label.textColor = AppTheme.Color.textSecondary
         label.numberOfLines = 1
+        label.adjustsFontForContentSizeCategory = true
         return label
     }()
 
     private let statusLabel: InsetLabel = {
         let label = InsetLabel()
-        label.font = .systemFont(ofSize: 12, weight: .semibold)
+        label.font = AppTheme.Font.caption(maximumPointSize: 16)
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = .white
         label.textAlignment = .center
         label.layer.cornerRadius = 8
@@ -82,6 +85,7 @@ final class ItemRowView: UIControl {
         layout()
         isAccessibilityElement = true
         accessibilityTraits = .button
+        accessibilityIdentifier = "item-row-\(item.id.uuidString)"
     }
 
     @available(*, unavailable)

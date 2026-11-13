@@ -39,6 +39,9 @@ final class ProfileViewController: UIViewController {
         label.font = AppTheme.Font.title()
         label.textColor = AppTheme.Color.textPrimary
         label.textAlignment = .center
+        label.adjustsFontForContentSizeCategory = true
+        label.numberOfLines = 0
+        label.accessibilityIdentifier = "profile-name-label"
         return label
     }()
 
@@ -48,7 +51,9 @@ final class ProfileViewController: UIViewController {
         label.font = AppTheme.Font.body()
         label.textColor = AppTheme.Color.textSecondary
         label.textAlignment = .center
+        label.adjustsFontForContentSizeCategory = true
         label.isHidden = user.email == nil
+        label.accessibilityIdentifier = "profile-email-label"
         return label
     }()
 
@@ -70,6 +75,7 @@ final class ProfileViewController: UIViewController {
         }
         let button = UIButton(configuration: configuration)
         button.addTarget(self, action: #selector(editProfileTapped), for: .touchUpInside)
+        button.accessibilityIdentifier = "edit-profile-button"
         return button
     }()
 
@@ -91,6 +97,7 @@ final class ProfileViewController: UIViewController {
         }
         let button = UIButton(configuration: configuration)
         button.addTarget(self, action: #selector(signOutTapped), for: .touchUpInside)
+        button.accessibilityIdentifier = "sign-out-button"
         return button
     }()
 

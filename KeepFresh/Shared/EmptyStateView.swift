@@ -21,6 +21,8 @@ final class EmptyStateView: UIView {
         titleLabel.font = AppTheme.Font.body()
         titleLabel.textColor = AppTheme.Color.textSecondary
         titleLabel.textAlignment = .center
+        titleLabel.adjustsFontForContentSizeCategory = true
+        titleLabel.numberOfLines = 0
 
         var arrangedSubviews: [UIView] = [imageView, titleLabel]
 

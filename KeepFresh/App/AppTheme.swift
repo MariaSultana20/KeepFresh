@@ -46,10 +46,29 @@ enum AppTheme {
     }
 
     enum Font {
-        static func title() -> UIFont { .systemFont(ofSize: 28, weight: .bold) }
-        static func headline() -> UIFont { .systemFont(ofSize: 17, weight: .semibold) }
-        static func body() -> UIFont { .systemFont(ofSize: 15, weight: .regular) }
-        static func caption() -> UIFont { .systemFont(ofSize: 13, weight: .medium) }
+        /// Returns a scaled font that grows with the user's preferred text
+        /// size. Pass `maximumPointSize` to cap runaway growth on screens
+        /// that show many items at once (e.g. table rows).
+        static func title(maximumPointSize: CGFloat? = nil) -> UIFont {
+            scaled(.systemFont(ofSize: 28, weight: .bold), textStyle: .title1, maximum: maximumPointSize)
+        }
+        static func headline(maximumPointSize: CGFloat? = nil) -> UIFont {
+            scaled(.systemFont(ofSize: 17, weight: .semibold), textStyle: .headline, maximum: maximumPointSize)
+        }
+        static func body(maximumPointSize: CGFloat? = nil) -> UIFont {
+            scaled(.systemFont(ofSize: 15, weight: .regular), textStyle: .body, maximum: maximumPointSize)
+        }
+        static func caption(maximumPointSize: CGFloat? = nil) -> UIFont {
+            scaled(.systemFont(ofSize: 13, weight: .medium), textStyle: .caption1, maximum: maximumPointSize)
+        }
+
+        private static func scaled(_ font: UIFont, textStyle: UIFont.TextStyle, maximum: CGFloat?) -> UIFont {
+            let metrics = UIFontMetrics(forTextStyle: textStyle)
+            if let maximum {
+                return metrics.scaledFont(for: font, maximumPointSize: maximum)
+            }
+            return metrics.scaledFont(for: font)
+        }
     }
 }
 
