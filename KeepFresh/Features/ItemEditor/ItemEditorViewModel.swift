@@ -74,6 +74,25 @@ final class ItemEditorViewModel {
         self.existingItem = existingItem
     }
 
+    /// Largest reminder lead time (in whole days) that still fires on or
+    /// after the purchase date — i.e. the day gap between purchase and
+    /// expiry. A longer lead time would schedule the reminder before the
+    /// item was even bought, which is meaningless. Returns 0 when expiry is
+    /// on/before the purchase date.
+    func maxReminderDaysBefore(purchaseDate: Date, expiryDate: Date, calendar: Calendar = .current) -> Int {
+        let startPurchase = calendar.startOfDay(for: purchaseDate)
+        let startExpiry = calendar.startOfDay(for: expiryDate)
+        let days = calendar.dateComponents([.day], from: startPurchase, to: startExpiry).day ?? 0
+        return max(0, days)
+    }
+
+    /// Whether a reminder set `daysBefore` days before expiry still fires on
+    /// or after the purchase date. Thin wrapper over `maxReminderDaysBefore`
+    /// so the view and tests share one source of truth for the rule.
+    func isReminderValid(daysBefore: Int, purchaseDate: Date, expiryDate: Date, calendar: Calendar = .current) -> Bool {
+        daysBefore <= maxReminderDaysBefore(purchaseDate: purchaseDate, expiryDate: expiryDate, calendar: calendar)
+    }
+
     func validate(name: String, category: String, quantityText: String, expiryDate: Date?) -> ItemFormValidation {
         var result = ItemFormValidation()
 

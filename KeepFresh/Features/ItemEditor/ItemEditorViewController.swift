@@ -45,6 +45,21 @@ final class ItemEditorViewController: UIViewController {
         return label
     }()
 
+    /// Shown beneath the control whenever one or more presets are disabled
+    /// because they'd fire before the purchase date — explains why those
+    /// options are greyed out.
+    private let reminderWarningLabel: UILabel = {
+        let label = UILabel()
+        label.font = AppTheme.Font.caption()
+        label.textColor = AppTheme.Color.textSecondary
+        label.numberOfLines = 0
+        label.adjustsFontForContentSizeCategory = true
+        label.text = "Reminders can't be set before the purchase date."
+        label.accessibilityIdentifier = "reminder-warning-label"
+        label.isHidden = true
+        return label
+    }()
+
     // MARK: Views
 
     private let scrollView = UIScrollView()
@@ -122,10 +137,10 @@ final class ItemEditorViewController: UIViewController {
         return picker
     }()
 
-    private lazy var reminderControl: UISegmentedControl = {
+    private lazy var reminderControl: ReselectableSegmentedControl = {
         var titles = ItemEditorViewController.reminderOptions.map { $0 == 0 ? "On day" : "\($0)d" }
         titles.append("Custom")
-        let control = UISegmentedControl(items: titles)
+        let control = ReselectableSegmentedControl(items: titles)
         // 7 segments need a tighter font to avoid crowding on small screens.
         let small = UIFont.systemFont(ofSize: 11, weight: .regular)
         let smallBold = UIFont.systemFont(ofSize: 11, weight: .semibold)
@@ -183,6 +198,7 @@ final class ItemEditorViewController: UIViewController {
         [nameField, categoryField, quantityField, noteField].forEach { $0.delegate = self }
         updateUnitButton()
         updateSaveButtonEnabled()
+        updateReminderAvailability()
     }
 
     private func populateInitialValues() {
@@ -239,7 +255,7 @@ final class ItemEditorViewController: UIViewController {
         noteStack.axis = .vertical
         noteStack.spacing = 4
 
-        let reminderStack = UIStackView(arrangedSubviews: [makeFieldLabel("Remind Me Before"), reminderControl, customValueLabel])
+        let reminderStack = UIStackView(arrangedSubviews: [makeFieldLabel("Remind Me Before"), reminderControl, customValueLabel, reminderWarningLabel])
         reminderStack.axis = .vertical
         reminderStack.spacing = 8
 
@@ -308,7 +324,15 @@ final class ItemEditorViewController: UIViewController {
     private func bindActions() {
         categoryPickerButton.addTarget(self, action: #selector(categoryPickerTapped), for: .touchUpInside)
         reminderControl.addTarget(self, action: #selector(reminderSegmentChanged), for: .valueChanged)
+        // Re-tapping the already-selected Custom segment reopens the editor —
+        // stock .valueChanged doesn't fire when the selection doesn't change.
+        reminderControl.onSegmentReselected = { [weak self] index in
+            guard let self, index == ItemEditorViewController.customSegmentIndex else { return }
+            presentCustomReminderAlert()
+        }
         expiryDatePicker.addTarget(self, action: #selector(formValuesChanged), for: .valueChanged)
+        expiryDatePicker.addTarget(self, action: #selector(reminderBoundsChanged), for: .valueChanged)
+        purchaseDatePicker.addTarget(self, action: #selector(reminderBoundsChanged), for: .valueChanged)
         [nameField, categoryField, quantityField].forEach {
             $0.addTarget(self, action: #selector(formValuesChanged), for: .editingChanged)
         }
@@ -443,6 +467,41 @@ final class ItemEditorViewController: UIViewController {
         updateSaveButtonEnabled()
     }
 
+    // MARK: Reminder bounds
+
+    private var maxReminderDays: Int {
+        viewModel.maxReminderDaysBefore(purchaseDate: purchaseDatePicker.date, expiryDate: expiryDatePicker.date)
+    }
+
+    @objc private func reminderBoundsChanged() {
+        updateReminderAvailability()
+    }
+
+    /// Greys out any preset that would fire before the purchase date, and
+    /// keeps the current selection valid — recomputed whenever either date
+    /// changes. The Custom segment stays tappable; its value is validated
+    /// when entered.
+    private func updateReminderAvailability() {
+        let maxDays = maxReminderDays
+        for (index, days) in ItemEditorViewController.reminderOptions.enumerated() {
+            reminderControl.setEnabled(days <= maxDays, forSegmentAt: index)
+        }
+
+        let selected = reminderControl.selectedSegmentIndex
+        if selected != ItemEditorViewController.customSegmentIndex,
+           selected >= 0,
+           ItemEditorViewController.reminderOptions[selected] > maxDays {
+            // Current preset no longer fits — snap to the longest valid one.
+            let fallback = ItemEditorViewController.reminderOptions.lastIndex { $0 <= maxDays } ?? 0
+            reminderControl.selectedSegmentIndex = fallback
+            previousSegmentIndex = fallback
+            customValueLabel.isHidden = true
+        }
+
+        // At least one preset disabled once the gap drops below the largest preset.
+        reminderWarningLabel.isHidden = maxDays >= (ItemEditorViewController.reminderOptions.last ?? 0)
+    }
+
     // MARK: Custom reminder
 
     @objc private func reminderSegmentChanged() {
@@ -455,6 +514,13 @@ final class ItemEditorViewController: UIViewController {
     }
 
     private func presentCustomReminderAlert() {
+        // Where to land if the user cancels or enters an invalid value:
+        // stay on Custom if it already holds a committed value (its caption
+        // is visible), otherwise fall back to the preset selected before.
+        let revertIndex = customValueLabel.isHidden
+            ? previousSegmentIndex
+            : ItemEditorViewController.customSegmentIndex
+
         let alert = UIAlertController(
             title: "Custom Reminder",
             message: "Days before expiry (0 = on the expiry day)",
@@ -466,14 +532,22 @@ final class ItemEditorViewController: UIViewController {
             if let self { field.text = "\(self.customReminderDays)" }
         }
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel) { [weak self] _ in
-            guard let self else { return }
-            reminderControl.selectedSegmentIndex = previousSegmentIndex
+            self?.reminderControl.selectedSegmentIndex = revertIndex
         })
         alert.addAction(UIAlertAction(title: "Set", style: .default) { [weak self] _ in
             guard let self else { return }
             let text = alert.textFields?.first?.text ?? ""
             guard let days = Int(text), days >= 0 else {
-                reminderControl.selectedSegmentIndex = previousSegmentIndex
+                reminderControl.selectedSegmentIndex = revertIndex
+                return
+            }
+            guard viewModel.isReminderValid(
+                daysBefore: days,
+                purchaseDate: purchaseDatePicker.date,
+                expiryDate: expiryDatePicker.date
+            ) else {
+                presentReminderTooEarly()
+                reminderControl.selectedSegmentIndex = revertIndex
                 return
             }
             customReminderDays = days
@@ -487,6 +561,17 @@ final class ItemEditorViewController: UIViewController {
             ? "On the expiry day"
             : "\(customReminderDays) day\(customReminderDays == 1 ? "" : "s") before expiry"
         customValueLabel.isHidden = false
+    }
+
+    private func presentReminderTooEarly() {
+        let maxDays = maxReminderDays
+        let alert = UIAlertController(
+            title: "Reminder Too Early",
+            message: "A reminder that many days before expiry would fall before the purchase date. The longest you can choose is \(maxDays) day\(maxDays == 1 ? "" : "s").",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
 }
 
@@ -502,5 +587,38 @@ extension ItemEditorViewController: UITextFieldDelegate {
             textField.resignFirstResponder()
         }
         return true
+    }
+}
+
+/// A `UISegmentedControl` that also reports taps on the already-selected
+/// segment. Stock `UISegmentedControl` only fires `.valueChanged` when the
+/// selection actually moves, so re-tapping the Custom segment to re-edit
+/// its value would otherwise be a no-op.
+final class ReselectableSegmentedControl: UISegmentedControl {
+
+    /// Called with the tapped segment index when a tap lands on the segment
+    /// that was already selected (and the selection therefore didn't change).
+    var onSegmentReselected: ((Int) -> Void)?
+
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        let previousIndex = selectedSegmentIndex
+        super.touchesEnded(touches, with: event)
+
+        guard let location = touches.first?.location(in: self),
+              bounds.contains(location),
+              numberOfSegments > 0
+        else { return }
+
+        // Segments are equal width (apportionsSegmentWidthsByContent is off),
+        // so the tapped index follows directly from the x position.
+        let segmentWidth = bounds.width / CGFloat(numberOfSegments)
+        let tappedIndex = min(numberOfSegments - 1, Int(location.x / segmentWidth))
+
+        // Only a genuine re-tap on the still-selected segment — a tap that
+        // moved the selection already went through .valueChanged, and a tap
+        // on a disabled segment leaves tappedIndex != previousIndex.
+        if tappedIndex == previousIndex, selectedSegmentIndex == previousIndex {
+            onSegmentReselected?(tappedIndex)
+        }
     }
 }

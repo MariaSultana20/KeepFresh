@@ -60,6 +60,68 @@ final class ItemEditorViewModelTests: XCTestCase {
         XCTAssertTrue(result.isValid)
     }
 
+    // MARK: - Reminder bounds
+
+    /// Fixed, timezone-stable calendar so day arithmetic is deterministic.
+    private var utcCalendar: Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "UTC")!
+        return calendar
+    }
+
+    private func date(_ year: Int, _ month: Int, _ day: Int) -> Date {
+        var components = DateComponents()
+        components.year = year
+        components.month = month
+        components.day = day
+        return utcCalendar.date(from: components)!
+    }
+
+    func test_maxReminderDaysBefore_isTheDayGap() {
+        let viewModel = ItemEditorViewModel(itemRepository: InMemoryItemRepository(), notificationService: InMemoryNotificationService())
+        let result = viewModel.maxReminderDaysBefore(
+            purchaseDate: date(2026, 11, 14), expiryDate: date(2026, 11, 19), calendar: utcCalendar
+        )
+        XCTAssertEqual(result, 5)
+    }
+
+    func test_maxReminderDaysBefore_sameDay_isZero() {
+        let viewModel = ItemEditorViewModel(itemRepository: InMemoryItemRepository(), notificationService: InMemoryNotificationService())
+        let result = viewModel.maxReminderDaysBefore(
+            purchaseDate: date(2026, 11, 14), expiryDate: date(2026, 11, 14), calendar: utcCalendar
+        )
+        XCTAssertEqual(result, 0)
+    }
+
+    func test_maxReminderDaysBefore_expiryBeforePurchase_clampsToZero() {
+        let viewModel = ItemEditorViewModel(itemRepository: InMemoryItemRepository(), notificationService: InMemoryNotificationService())
+        let result = viewModel.maxReminderDaysBefore(
+            purchaseDate: date(2026, 11, 14), expiryDate: date(2026, 11, 10), calendar: utcCalendar
+        )
+        XCTAssertEqual(result, 0)
+    }
+
+    func test_isReminderValid_withinGap_isTrue() {
+        let viewModel = ItemEditorViewModel(itemRepository: InMemoryItemRepository(), notificationService: InMemoryNotificationService())
+        XCTAssertTrue(viewModel.isReminderValid(
+            daysBefore: 3, purchaseDate: date(2026, 11, 14), expiryDate: date(2026, 11, 19), calendar: utcCalendar
+        ))
+    }
+
+    func test_isReminderValid_atExactBoundary_isTrue() {
+        let viewModel = ItemEditorViewModel(itemRepository: InMemoryItemRepository(), notificationService: InMemoryNotificationService())
+        XCTAssertTrue(viewModel.isReminderValid(
+            daysBefore: 5, purchaseDate: date(2026, 11, 14), expiryDate: date(2026, 11, 19), calendar: utcCalendar
+        ))
+    }
+
+    func test_isReminderValid_beyondGap_isFalse() {
+        let viewModel = ItemEditorViewModel(itemRepository: InMemoryItemRepository(), notificationService: InMemoryNotificationService())
+        XCTAssertFalse(viewModel.isReminderValid(
+            daysBefore: 6, purchaseDate: date(2026, 11, 14), expiryDate: date(2026, 11, 19), calendar: utcCalendar
+        ))
+    }
+
     // MARK: - Add mode
 
     func test_addMode_initialValues_areDefaults() {
