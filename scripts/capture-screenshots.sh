@@ -25,10 +25,17 @@ DARK_SCREENS=(home items)
 
 mkdir -p "$OUT_DIR"
 
-echo "==> Booting $DEVICE"
-xcrun simctl boot "$DEVICE" 2>/dev/null || true
+# Resolve the device's UDID by name (unambiguous for simctl across runtimes).
+DEVICE_ID="$(xcrun simctl list devices available | grep -F "$DEVICE (" | head -1 | grep -oE '[0-9A-F-]{36}')"
+if [[ -z "$DEVICE_ID" ]]; then
+  echo "error: no available simulator named '$DEVICE'" >&2
+  exit 1
+fi
+
+echo "==> Booting $DEVICE ($DEVICE_ID)"
+xcrun simctl boot "$DEVICE_ID" 2>/dev/null || true
 open -a Simulator
-xcrun simctl bootstatus "$DEVICE" -b
+xcrun simctl bootstatus "$DEVICE_ID" -b
 
 echo "==> Building $SCHEME for simulator"
 xcodebuild \
@@ -37,21 +44,22 @@ xcodebuild \
   -sdk iphonesimulator \
   -configuration Debug \
   -derivedDataPath "$DERIVED" \
-  -destination "platform=iOS Simulator,name=$DEVICE" \
+  -destination "generic/platform=iOS Simulator" \
+  CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
   build >/dev/null
 
 APP_PATH="$DERIVED/Build/Products/Debug-iphonesimulator/$SCHEME.app"
 echo "==> Installing $APP_PATH"
-xcrun simctl install "$DEVICE" "$APP_PATH"
+xcrun simctl install "$DEVICE_ID" "$APP_PATH"
 
 capture() {
   local screen="$1" appearance="$2"
-  xcrun simctl ui "$DEVICE" appearance "$appearance"
-  xcrun simctl terminate "$DEVICE" "$BUNDLE_ID" 2>/dev/null || true
-  xcrun simctl launch "$DEVICE" "$BUNDLE_ID" -screenshotMode -screenshotScreen "$screen" >/dev/null
+  xcrun simctl ui "$DEVICE_ID" appearance "$appearance"
+  xcrun simctl terminate "$DEVICE_ID" "$BUNDLE_ID" 2>/dev/null || true
+  xcrun simctl launch "$DEVICE_ID" "$BUNDLE_ID" -screenshotMode -screenshotScreen "$screen" >/dev/null
   sleep 3.5
   local out="$OUT_DIR/${screen}-${appearance}.png"
-  xcrun simctl io "$DEVICE" screenshot "$out" >/dev/null
+  xcrun simctl io "$DEVICE_ID" screenshot "$out" >/dev/null
   echo "    saved ${out#"$PROJECT_DIR/"}"
 }
 
@@ -65,5 +73,5 @@ for screen in "${DARK_SCREENS[@]}"; do
   capture "$screen" dark
 done
 
-xcrun simctl ui "$DEVICE" appearance light
+xcrun simctl ui "$DEVICE_ID" appearance light
 echo "==> Done. Screenshots in ${OUT_DIR#"$PROJECT_DIR/"}/"
