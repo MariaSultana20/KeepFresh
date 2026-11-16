@@ -179,4 +179,16 @@ final class InMemoryNotificationService: NotificationServiceProtocol {
     func pendingReminders() async -> [ScheduledReminder] {
         Array(scheduled.values)
     }
+
+    /// Synchronously preloads already-scheduled reminders for the given
+    /// items — for previews and screenshot capture, where the Notifications
+    /// screen needs populated content without first saving items through a
+    /// ViewModel. Items whose reminder would already be in the past are
+    /// skipped, mirroring `reschedule(for:)`.
+    func preload(_ items: [Item]) {
+        for item in items {
+            guard let fireDate = NotificationScheduling.fireDate(for: item), fireDate > Date() else { continue }
+            scheduled[NotificationScheduling.identifier(for: item)] = ScheduledReminder(itemID: item.id, fireDate: fireDate)
+        }
+    }
 }
