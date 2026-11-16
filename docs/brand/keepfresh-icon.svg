@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!--
+    KeepFresh app icon — calendar + leaf.
+    Green gradient background, bold white calendar, brand-green leaf centered
+    on the calendar face. Three tones only so it stays legible at small sizes.
+    Source of truth; rasterize with scripts/generate-icon.sh.
+  -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#22C55E"/>
+      <stop offset="1" stop-color="#15803D"/>
+    </linearGradient>
+    <linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#22C55E"/>
+      <stop offset="1" stop-color="#15803D"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Full-bleed background; iOS applies the rounded-corner mask itself. -->
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+
+  <!-- Calendar binding tabs -->
+  <rect x="384" y="188" width="44" height="116" rx="22" fill="#FFFFFF"/>
+  <rect x="596" y="188" width="44" height="116" rx="22" fill="#FFFFFF"/>
+
+  <!-- Calendar body -->
+  <rect x="236" y="252" width="552" height="552" rx="76" fill="#FFFFFF"/>
+  <!-- Header bar (top strip of the calendar) -->
+  <path d="M236 328 a76 76 0 0 1 76 -76 h400 a76 76 0 0 1 76 76 v40 H236 Z" fill="#15803D"/>
+
+  <!-- Leaf centered on the white calendar face -->
+  <g transform="translate(512 590) rotate(-32)">
+    <!-- leaf body (teardrop) -->
+    <path d="M0 -168
+             C 108 -150 150 -66 150 18
+             C 150 104 86 168 0 168
+             C -86 168 -150 104 -150 18
+             C -150 -66 -42 -150 0 -168 Z"
+          fill="url(#leaf)"/>
+    <!-- midrib -->
+    <path d="M0 150 C -16 56 -16 -64 0 -150"
+          fill="none" stroke="#FFFFFF" stroke-width="24" stroke-linecap="round"/>
+    <!-- two side veins -->
+    <path d="M-2 12 L 70 -34 M-2 -70 L 60 -104"
+          fill="none" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round" opacity="0.92"/>
+  </g>
+</svg>

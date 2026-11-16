@@ -1,4 +1,8 @@
-# KeepFresh
+<p align="center">
+  <img src="KeepFresh/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png" width="120" alt="KeepFresh app icon" />
+</p>
+
+<h1 align="center">KeepFresh</h1>
 
 **An iOS app that tracks the shelf life of packaged products and reminds you before they expire.**
 
